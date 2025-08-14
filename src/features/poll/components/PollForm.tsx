@@ -133,7 +133,7 @@ export default function PollForm({ onSubmit, submitting, error }: PollFormProps)
             </IconButton>
           )}
         </Box>
-      ))}
+      ))}   
       <Box display="flex" alignItems="center" mb={2}>
         <Link
           href="#"

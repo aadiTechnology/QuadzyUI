@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Card, Checkbox, Button, LinearProgress } from '@mui/material';
+import PersonIcon from '@mui/icons-material/Person';
 
 interface PollCardProps {
   poll: {
@@ -9,6 +10,8 @@ interface PollCardProps {
     allow_multiple_count?: number;
     createdAt?: string;
     duration_type?: string;
+    handle?: string;
+    collegeName?: string;
   };
 }
 
@@ -73,97 +76,92 @@ const PollCard: React.FC<PollCardProps> = ({ poll }) => {
     setShowResults(true);
   };
 
-  const totalVotes = votes.reduce((a, b) => a + b, 0);
+const totalVotes = votes.reduce((sum, v) => sum + v, 0);
 
-  return (
-    <Card sx={{ p: 2, mb: 2, bgcolor: '#fcfdfcff', borderRadius: 3 }}>
-<<<<<<< Updated upstream
-      <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
-=======
-      {/* Header: Person icon, handle, college name */}
-      {/* Content Section */}
-        <Box display="flex" alignItems="center" gap={1} sx={{ mb: 4 }}>
-          <PersonIcon fontSize="small" color="action"/>
-          <Typography variant="subtitle2">
-            {poll.handle || 'userHandle'} ({poll.collegeName || ''})
-          </Typography>
-        </Box>
-
-      <Typography
-        variant="subtitle1"
-        fontWeight={700}
-        sx={{ mb: 1, fontSize: 18 }} // Make question bigger
-      >
->>>>>>> Stashed changes
-        {poll.question}
+return (
+  <Card sx={{ p: 2, mb: 2, bgcolor: '#fcfdfcff', borderRadius: 3 }}>
+    {/* Header: Person icon, handle, college name */}
+    <Box display="flex" alignItems="center" gap={1} sx={{ mb: 4 }}>
+      <PersonIcon fontSize="small" color="action" />
+      <Typography variant="subtitle2">
+        {(poll.handle ?? 'userHandle')}{poll.collegeName ? ` (${poll.collegeName})` : ''}
       </Typography>
-      <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
-        {poll.allow_multiple
-          ? `Select up to ${maxSelect} option${maxSelect > 1 ? 's' : ''}`
-          : 'Select one'}
+    </Box>
+
+    <Typography
+      variant="subtitle1"
+      fontWeight={700}
+      sx={{ mb: 1, fontSize: 18 }} // Make question bigger
+    >
+      {poll.question}
+    </Typography>
+    <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+      {poll.allow_multiple
+        ? `Select up to ${maxSelect} option${maxSelect > 1 ? 's' : ''}`
+        : 'Select one'}
+    </Typography>
+
+    {!showResults ? (
+      <>
+        {poll.options.map((opt, idx) => (
+          <Box key={idx} display="flex" alignItems="center" sx={{ mb: 1 }}>
+            <Checkbox
+              checked={selected.includes(idx)}
+              onChange={() => handleSelect(idx)}
+              disabled={!selected.includes(idx) && selected.length >= maxSelect}
+            />
+            <Typography variant="body2" sx={{ flex: 1 }}>{opt}</Typography>
+          </Box>
+        ))}
+        <Button
+          variant="text"
+          color="primary"
+          sx={{ mt: 1, fontWeight: 600 }}
+          onClick={handleVote}
+          disabled={selected.length === 0}
+        >
+          View votes
+        </Button>
+      </>
+    ) : (
+      <>
+        {poll.options.map((opt, idx) => (
+          <Box key={idx} display="flex" alignItems="center" sx={{ mb: 1 }}>
+            <Typography variant="body2" sx={{ flex: 1 }}>{opt}</Typography>
+            <Typography variant="body2" sx={{ ml: 1 }}>{votes[idx]}</Typography>
+            <LinearProgress
+              variant="determinate"
+              value={totalVotes ? (votes[idx] / totalVotes) * 100 : 0}
+              sx={{
+                width: 100,
+                height: 8,
+                borderRadius: 5,
+                ml: 2,
+                bgcolor: '#e0e0e0',
+                '& .MuiLinearProgress-bar': { bgcolor: '#1976d2' } // blue bar
+              }}
+            />
+          </Box>
+        ))}
+        <Button
+          variant="text"
+          color="primary"
+          sx={{ mt: 1, fontWeight: 600 }}
+          onClick={() => setShowResults(false)}
+        >
+          Back to poll
+        </Button>
+      </>
+    )}
+
+    {poll.createdAt && (
+      <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+        {poll.createdAt ? new Date(poll.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+        {poll.duration_type ? ` • Active for ${poll.duration_type.replace('h', ' hour').replace('d', ' day').replace('w', ' week')}` : ''}
       </Typography>
-
-      {!showResults ? (
-        <>
-          {poll.options.map((opt, idx) => (
-            <Box key={idx} display="flex" alignItems="center" sx={{ mb: 1 }}>
-              <Checkbox
-                checked={selected.includes(idx)}
-                onChange={() => handleSelect(idx)}
-                disabled={!selected.includes(idx) && selected.length >= maxSelect}
-              />
-              <Typography variant="body2" sx={{ flex: 1 }}>{opt}</Typography>
-            </Box>
-          ))}
-          <Button
-            variant="text"
-            color="primary"
-            sx={{ mt: 1, fontWeight: 600 }}
-            onClick={handleVote}
-            disabled={selected.length === 0}
-          >
-            View votes
-          </Button>
-        </>
-      ) : (
-        <>
-          {poll.options.map((opt, idx) => (
-            <Box key={idx} display="flex" alignItems="center" sx={{ mb: 1 }}>
-              <Typography variant="body2" sx={{ flex: 1 }}>{opt}</Typography>
-              <Typography variant="body2" sx={{ ml: 1 }}>{votes[idx]}</Typography>
-              <LinearProgress
-                variant="determinate"
-                value={totalVotes ? (votes[idx] / totalVotes) * 100 : 0}
-                sx={{
-                  width: 100,
-                  height: 8,
-                  borderRadius: 5,
-                  ml: 2,
-                  bgcolor: '#e0e0e0',
-                  '& .MuiLinearProgress-bar': { bgcolor: '#1976d2' } // blue bar
-                }}
-              />
-            </Box>
-          ))}
-          <Button
-            variant="text"
-            color="primary"
-            sx={{ mt: 1, fontWeight: 600 }}
-            onClick={() => setShowResults(false)}
-          >
-            Back to poll
-          </Button>
-        </>
-      )}
-
-      {poll.createdAt && (
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-          {new Date(poll.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          {poll.duration_type && ` • Active for ${poll.duration_type.replace('h', ' hour').replace('d', ' day').replace('w', ' week')}`}
-        </Typography>
-      )}
-    </Card>
-  );
+    )}
+  </Card>
+);
 };
 
 export default PollCard;
