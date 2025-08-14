@@ -77,7 +77,24 @@ const PollCard: React.FC<PollCardProps> = ({ poll }) => {
 
   return (
     <Card sx={{ p: 2, mb: 2, bgcolor: '#fcfdfcff', borderRadius: 3 }}>
+<<<<<<< Updated upstream
       <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
+=======
+      {/* Header: Person icon, handle, college name */}
+      {/* Content Section */}
+        <Box display="flex" alignItems="center" gap={1} sx={{ mb: 4 }}>
+          <PersonIcon fontSize="small" color="action"/>
+          <Typography variant="subtitle2">
+            {poll.handle || 'userHandle'} ({poll.collegeName || ''})
+          </Typography>
+        </Box>
+
+      <Typography
+        variant="subtitle1"
+        fontWeight={700}
+        sx={{ mb: 1, fontSize: 18 }} // Make question bigger
+      >
+>>>>>>> Stashed changes
         {poll.question}
       </Typography>
       <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
