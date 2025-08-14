@@ -4,6 +4,7 @@ import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import ReplyOutlinedIcon from '@mui/icons-material/ReplyOutlined';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import SendIcon from '@mui/icons-material/Send'; // Add this import at the top
 import { addComment } from '../services/loungeService';
 import api from '../../../services/api'; // Add this import
 
@@ -161,8 +162,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, comments, setCo
         <Button
           variant="contained"
           onClick={handleAddComment}
-          sx={{ height: 40, minWidth: 80,  alignSelf: 'flex-end', fontWeight: 700,  fontSize: 16, letterSpacing: 1, }} >
-          {replyTo ? "Reply" : "Send"}
+          sx={{ height: 40, minWidth: 48, alignSelf: 'flex-end', fontWeight: 700, fontSize: 16, letterSpacing: 1, px: 0, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <SendIcon />
         </Button>
       </Box>
       <List>
