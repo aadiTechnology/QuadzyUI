@@ -97,29 +97,63 @@ const PostCard: React.FC<PostCardProps> = ({
   return (
     <Box
       sx={{
-        borderBottom: '1px solid #e3e3e3',
-        mt: 2,
+        background: '#fff',
+        borderRadius: 3,
+        boxShadow: '0 2px 12px 0 rgba(60,72,120,0.06)',
+        p: 2,
         mb: 2,
-        '&:last-child': { borderBottom: 'none', mb: 0 },
-        cursor: 'default', // Default cursor for the entire row
+        mt: 2,
+        transition: 'box-shadow 0.2s',
+        '&:hover': {
+          boxShadow: '0 4px 24px 0 rgba(60,72,120,0.12)',
+        },
       }}
     >
-      <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-        <Box display="flex" alignItems="center" gap={1}>
-          <PersonIcon fontSize="small" color="action" />
-          <Typography variant="subtitle2">
-            {post.userHandle} ({post.institution})
-          </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
+        {/* Left: Avatar and user info */}
+        <Box display="flex" alignItems="flex-start" gap={1} flex={1}>
+          <PersonIcon fontSize="medium" color="action" sx={{ mt: 0.5 }} />
+          <Box>
+            <Typography variant="subtitle2" fontWeight={700}>
+              {post.userHandle}
+            </Typography>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Typography variant="body2" color="text.secondary">
+                {post.institution}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                • {post.timeAgo}
+              </Typography>
+            </Box>
+          </Box>
         </Box>
-        <Typography variant="caption">{post.timeAgo}</Typography>
+        {/* Right: Menu */}
+        <IconButton size="small" onClick={handleMenuOpen}>
+          <MoreVertIcon />
+        </IconButton>
+        <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
+          <MenuItem onClick={handleSaveToggle} disabled={saving}>
+            {post.saved ? (
+              <>
+                <BookmarkIcon fontSize="small" sx={{ mr: 1 }} /> Unsave
+              </>
+            ) : (
+              <>
+                <BookmarkBorderIcon fontSize="small" sx={{ mr: 1 }} /> Save
+              </>
+            )}
+          </MenuItem>
+        </Menu>
       </Box>
+      {/* Heading */}
       <Typography
         variant="h6"
-        sx={{ mb: 0.5, fontWeight: 700, cursor: 'pointer' }} // Add pointer cursor for clickable title
-        onClick={handleNavigate} // Trigger navigation with animation
+        sx={{ mb: 0.5, fontWeight: 700, cursor: 'pointer' }}
+        onClick={handleNavigate}
       >
         {post.title}
       </Typography>
+      {/* Description */}
       <Typography
         variant="body2"
         sx={{
@@ -131,7 +165,7 @@ const PostCard: React.FC<PostCardProps> = ({
           WebkitBoxOrient: 'vertical',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          minHeight: '3em', // Ensures consistent height for 2 lines
+          minHeight: '3em',
         }}
         ref={descRef}
         onClick={handleNavigate}
@@ -148,14 +182,15 @@ const PostCard: React.FC<PostCardProps> = ({
               handleNavigate();
             }}
           >
-             more
+            more
           </span>
         </Box>
       )}
-      <Box display="flex" gap={1} alignItems="center">
+      {/* Icons row */}
+      <Box display="flex" gap={1} alignItems="center" mt={1}>
         <Tooltip title="Like">
           <IconButton
-            onClick={() => onLike && onLike(post.id)} // Handle like action
+            onClick={() => onLike && onLike(post.id)}
             size="small"
             color={post.liked ? 'primary' : 'default'}
           >
@@ -169,7 +204,7 @@ const PostCard: React.FC<PostCardProps> = ({
         <Typography variant="caption">{post.likes}</Typography>
         <Tooltip title="Dislike">
           <IconButton
-            onClick={() => onDislike && onDislike(post.id)} // Handle dislike action
+            onClick={() => onDislike && onDislike(post.id)}
             size="small"
             color={post.disliked ? 'error' : 'default'}
           >
@@ -198,22 +233,6 @@ const PostCard: React.FC<PostCardProps> = ({
             Private
           </Typography>
         )}
-        <IconButton size="small" onClick={handleMenuOpen}>
-          <MoreVertIcon />
-        </IconButton>
-        <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-          <MenuItem onClick={handleSaveToggle} disabled={saving}>
-            {post.saved ? (
-              <>
-                <BookmarkIcon fontSize="small" sx={{ mr: 1 }} /> Unsave
-              </>
-            ) : (
-              <>
-                <BookmarkBorderIcon fontSize="small" sx={{ mr: 1 }} /> Save
-              </>
-            )}
-          </MenuItem>
-        </Menu>
       </Box>
     </Box>
   );

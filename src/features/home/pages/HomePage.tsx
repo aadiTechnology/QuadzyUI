@@ -91,6 +91,7 @@ const HomePage: React.FC = () => {
       let filtered = res.data.map((p: any) => ({
         ...p,
         id: p.id ?? p.postId,
+        institution: p.collegeName, // <-- Map collegeName to institution
       }));
       if (tabIndex === 0) {
         // Show posts where loungeId === myCollegeId and isPrivate === true
