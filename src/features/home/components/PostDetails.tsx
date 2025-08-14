@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import CommentSection from './CommentDrawer'; // Import the updated CommentDrawer component
 import { fetchComments } from '../services/loungeService'; // Import fetchComments service
 import '../../../styles/transition.css'; // Import transition styles
+import Chip from '@mui/material/Chip';
 
 export interface Post {
   id: number;
@@ -79,12 +80,16 @@ const PostDetails: React.FC = () => {
   }
 
   return (
-   <Container maxWidth="xs" sx={{ py: 2 }}>
-        <Button sx={{ position: 'absolute', left: 30, top: 89, minWidth: 36, borderRadius: 2, bgcolor: '#f5f7fa', color: '#000', fontWeight: 700, boxShadow: 0, '&:hover': { bgcolor: '#e3eafc' }, }}
-                          onClick={() => navigate(-1)}
-                        >
-                          ←
-            </Button>
+    <Box sx={{ position: 'relative',  minHeight: '100vh',  pb: { xs: 10, md: 10 }, }} >
+           <Card sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 3 },  boxShadow: '0 4px 24px 0 rgba(60,72,120,0.10)', background: '#fff',position: 'sticky',
+                 top: 0, 
+              height: '80vh', 
+              overflowY: 'auto',  }} >
+        <Button sx={{ position: 'absolute', left: 15, top: 15, minWidth: 36, borderRadius: 2, bgcolor: '#f5f7fa', color: '#000', fontWeight: 700, boxShadow: 0, '&:hover': { bgcolor: '#f4f5f8ff' }, }}
+                           onClick={() => navigate(-1)}
+                         >
+                           ←
+             </Button>
             <Typography variant="h6" align="center" sx={{ mb: 2 }}>
               View Post
       
@@ -101,6 +106,15 @@ const PostDetails: React.FC = () => {
         <Typography variant="h4" sx={{ mb: 2, fontWeight: 700 }}>
           {post.title}
         </Typography>
+
+        {post.tags && post.tags.length > 0 && (
+          <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+            {post.tags.map((tag: string) => (
+              <Chip key={tag} label={tag} size="small" sx={{ bgcolor: '#f3f6f9', fontWeight: 500 }} />
+            ))}
+          </Box>
+        )}
+
         <Typography variant="body1" sx={{ mb: 2 }}>
           {post.description}
         </Typography>
@@ -128,8 +142,8 @@ const PostDetails: React.FC = () => {
           <CommentSection postId={post.id} comments={comments} setComments={setComments} />
         )}
       </Box>
-  
-    </Container>
+  </Card>
+    </Box>
   );
 };
 
