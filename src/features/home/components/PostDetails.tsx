@@ -9,6 +9,10 @@ import CommentSection from './CommentDrawer'; // Import the updated CommentDrawe
 import { fetchComments } from '../services/loungeService'; // Import fetchComments service
 import '../../../styles/transition.css'; // Import transition styles
 import Chip from '@mui/material/Chip';
+import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
+import ThumbDownAltOutlinedIcon from '@mui/icons-material/ThumbDownAltOutlined';
+import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 
 export interface Post {
   id: number;
