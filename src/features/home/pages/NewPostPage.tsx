@@ -140,7 +140,7 @@ const NewPostPage: React.FC = () => {
           height: '80vh', 
           overflowY: 'auto',  }} >
       <Button sx={{ position: 'absolute', left: 15, top: 15, minWidth: 36, borderRadius: 2, bgcolor: '#f5f7fa', color: '#000', fontWeight: 700, boxShadow: 0, '&:hover': { bgcolor: '#f4f5f8ff' }, }}
-                    onClick={() => navigate(-1)}
+                    onClick={() =>navigate('/home', { replace: true })}
                   >
                     ←
       </Button>

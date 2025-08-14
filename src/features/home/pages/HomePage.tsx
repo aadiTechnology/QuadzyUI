@@ -7,6 +7,7 @@ import PostList from '../components/PostList';
 import { fetchLounges, fetchPosts, createPost, likePost, commentPost, viewPost, fetchComments, addComment, dislikePost, savePost, unsavePost } from '../services/loungeService';
 import type { Comment } from '../../../types';
 import { useNavigate } from 'react-router-dom';
+import PollCard from '../../poll/components/PollCard';
 
 const HomePage: React.FC = () => {
   const [lounges, setLounges] = useState<{ id: number; name: string }[]>([]);
@@ -36,6 +37,10 @@ const HomePage: React.FC = () => {
   // Dummy comments state for demonstration (replace with your real comments logic)
   const [comments, setComments] = useState<{ [postId: number]: Comment[] }>({});
   const [loadingComments, setLoadingComments] = useState(false);
+
+  
+  const [savedPolls, setSavedPolls] = useState<any[]>([]);
+  const [mergedFeed, setMergedFeed] = useState<any[]>([]);
 
   const navigate = useNavigate();
 
@@ -114,6 +119,22 @@ const HomePage: React.FC = () => {
       setLoading(false);
     });
   }, [tabIndex, myCollegeId, otherCollegeId]);
+
+    useEffect(() => {
+    const polls = JSON.parse(localStorage.getItem('createdPolls') || '[]');
+    polls.forEach((p: any) => { p._type = 'poll'; });
+    // Assume posts already fetched and in `posts` state
+    const postsWithType = posts.map(p => ({ ...p, _type: 'post' }));
+
+    // Merge and sort by createdAt/created_at/timestamp
+    const merged = [...polls, ...postsWithType].sort((a, b) => {
+      const aTime = new Date(a.createdAt || a.created_at || a.timestamp).getTime();
+      const bTime = new Date(b.createdAt || b.created_at || b.timestamp).getTime();
+      return bTime - aTime;
+    });
+    setMergedFeed(merged);
+  }, [posts, savedPolls]); // Make sure to update when posts or polls change
+
 
   // Handler for Like
   const handleLike = async (postId: number) => {
@@ -270,6 +291,13 @@ const HomePage: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    const polls = JSON.parse(localStorage.getItem('createdPolls') || '[]');
+    // Sort by createdAt descending
+    polls.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    setSavedPolls(polls);
+  }, []);
+
   return (
     <Box sx={{ position: 'relative',  minHeight: '100vh',  pb: { xs: 10, md: 10 }, }} >
         <Card sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 3 },  boxShadow: '0 4px 24px 0 rgba(60,72,120,0.10)', background: '#fff',position: 'sticky',
@@ -342,6 +370,16 @@ const HomePage: React.FC = () => {
           </Box>
         )}
       </Box>
+
+        {/* Move Your Polls section here */}
+      {savedPolls.length > 0 && (
+        <Box sx={{ mb: 3 }}>
+          {savedPolls.map((poll, idx) => (
+            <PollCard key={poll.createdAt || idx} poll={poll} />
+          ))}
+        </Box>
+      )}
+
       {loading ? (
         <Box
           display="flex"

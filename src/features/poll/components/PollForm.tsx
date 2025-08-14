@@ -95,9 +95,7 @@ export default function PollForm({ onSubmit, submitting, error }: PollFormProps)
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ px: 0, py: 0 }}>
-      <Typography variant="h6" align="center" sx={{ mb: 2 }}>
-        Create Poll
-      </Typography>
+    
       <TextField
         label="Ask a question"
         fullWidth
@@ -125,7 +123,7 @@ export default function PollForm({ onSubmit, submitting, error }: PollFormProps)
           {options.length > 2 && (
             <IconButton
               onClick={() => handleRemoveOption(idx)}
-              sx={{ ml: 1 }}
+              sx={{ ml: 1, color: '#f85959ff' }}
               aria-label="Delete option"
               size="small"
             >

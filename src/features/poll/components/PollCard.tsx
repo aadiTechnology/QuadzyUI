@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Card, Checkbox, Button, LinearProgress } from '@mui/material';
+import { Box, Typography, Card, Checkbox, Button, LinearProgress, Avatar } from '@mui/material';
+import PersonIcon from '@mui/icons-material/Person';
 
 interface PollCardProps {
   poll: {
@@ -9,6 +10,8 @@ interface PollCardProps {
     allow_multiple_count?: number;
     createdAt?: string;
     duration_type?: string;
+    handle?: string;
+    collegeName?: string;
   };
 }
 
@@ -77,10 +80,27 @@ const PollCard: React.FC<PollCardProps> = ({ poll }) => {
 
   return (
     <Card sx={{ p: 2, mb: 2, bgcolor: '#fcfdfcff', borderRadius: 3 }}>
-      <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
+      {/* Header: Person icon, handle, college name */}
+      {/* Content Section */}
+        <Box display="flex" alignItems="center" gap={1} sx={{ mb: 4 }}>
+          <PersonIcon fontSize="small" color="action"/>
+          <Typography variant="subtitle2">
+            {poll.handle || '@user'} ({poll.collegeName || ''})
+          </Typography>
+        </Box>
+
+      <Typography
+        variant="subtitle1"
+        fontWeight={700}
+        sx={{ mb: 1, fontSize: 18 }} // Make question bigger
+      >
         {poll.question}
       </Typography>
-      <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+      <Typography
+        variant="body1"
+        color="text.secondary"
+        sx={{ mb: 1, display: 'block', fontSize: 15, fontWeight: 500 }} // Make "Select one" bigger and bolder
+      >
         {poll.allow_multiple
           ? `Select up to ${maxSelect} option${maxSelect > 1 ? 's' : ''}`
           : 'Select one'}
@@ -140,7 +160,11 @@ const PollCard: React.FC<PollCardProps> = ({ poll }) => {
       )}
 
       {poll.createdAt && (
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mt: 1, display: 'block', fontSize: 14, fontWeight: 500 }} // Make duration bigger and bolder
+        >
           {new Date(poll.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           {poll.duration_type && ` • Active for ${poll.duration_type.replace('h', ' hour').replace('d', ' day').replace('w', ' week')}`}
         </Typography>
