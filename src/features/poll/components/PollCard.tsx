@@ -82,9 +82,9 @@ return (
   <Card sx={{ p: 2, mb: 2, bgcolor: '#fcfdfcff', borderRadius: 3 }}>
     {/* Header: Person icon, handle, college name */}
     <Box display="flex" alignItems="center" gap={1} sx={{ mb: 4 }}>
-      <PersonIcon fontSize="small" color="action" />
+      <PersonIcon fontSize="small" color="action"/>
       <Typography variant="subtitle2">
-        {(poll.handle ?? 'userHandle')}{poll.collegeName ? ` (${poll.collegeName})` : ''}
+        {poll.handle || 'userHandle'} ({poll.collegeName || ''})
       </Typography>
     </Box>
 

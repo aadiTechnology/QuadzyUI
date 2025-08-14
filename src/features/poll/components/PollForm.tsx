@@ -35,7 +35,7 @@ export default function PollForm({ onSubmit, submitting, error }: PollFormProps)
     if (!question.trim()) errs.question = 'Question is required';
     const filledOptions = options.filter(opt => opt.trim());
     if (filledOptions.length < 2) errs.options = 'At least 2 options required';
-    if (filledOptions.length > 5) errs.options = 'Maximum 5 options allowed';
+    if (filledOptions.length > 10) errs.options = 'Maximum 10 options allowed';
     if (durationType === 'custom') {
       if (!customStart) errs.customStart = 'Start time required';
       if (!customEnd) errs.customEnd = 'End time required';
@@ -52,7 +52,7 @@ export default function PollForm({ onSubmit, submitting, error }: PollFormProps)
 
   const handleAddOption = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (options.length < 5) setOptions([...options, '']);
+    if (options.length < 10) setOptions([...options, '']);
   };
 
   const handleRemoveOption = (idx: number) => {
@@ -125,7 +125,7 @@ export default function PollForm({ onSubmit, submitting, error }: PollFormProps)
           {options.length > 2 && (
             <IconButton
               onClick={() => handleRemoveOption(idx)}
-              sx={{ ml: 1 }}
+              sx={{ ml: 1 ,color: '#f73b3bff'}}
               aria-label="Delete option"
               size="small"
             >
