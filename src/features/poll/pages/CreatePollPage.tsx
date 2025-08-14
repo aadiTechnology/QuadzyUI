@@ -40,7 +40,6 @@ const CreatePollPage: React.FC = () => {
     }
   };
 
-<<<<<<< Updated upstream
 return (
    <Box sx={{ position: 'relative',  minHeight: '100vh',  pb: { xs: 10, md: 10 }, }} >
     <Card sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 3 },  boxShadow: '0 4px 24px 0 rgba(60,72,120,0.10)', background: '#fff',position: 'sticky',
@@ -61,38 +60,6 @@ return (
      </Card>
   </Box>
 );
-=======
-  const loungeId = 'your-lounge-id'; // Replace with the actual lounge ID logic
-
-  return (
-    <Container maxWidth="xs" sx={{ py: 2 }}>
-        <Card sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 3 },  boxShadow: '0 4px 24px 0 rgba(60,72,120,0.10)', background: '#fff',position: 'sticky',
-             top: 0, 
-          height: '80vh', 
-          overflowY: 'auto',  }} >
-      <Box>
-        <Button
-          sx={{ position: 'absolute', left: 15, top: 15, minWidth: 36, borderRadius: 2, bgcolor: '#f5f7fa', color: '#000', fontWeight: 700, boxShadow: 0, '&:hover': { bgcolor: '#f4f5f8ff' }, }}
-          onClick={() => navigate(`/lounges/${loungeId}/new-post`, { replace: true })}
-        >
-          ←
-        </Button>
-        <Typography variant="h6" align="center" sx={{ mb: 2 }}>
-          Create Poll
-        </Typography>
-        {/* Empty box for spacing to center the title */}
-        <Box sx={{ width: 40 }} />
-      </Box>
-      <PollForm onSubmit={handleSubmit} submitting={submitting} error={error} />
-      <Snackbar open={success} autoHideDuration={1500}>
-        <Alert severity="success" sx={{ width: '100%' }}>
-          Poll created successfully!
-        </Alert>
-      </Snackbar>
-      </Card>
-    </Container>
-  );
->>>>>>> Stashed changes
 };
 
 export default CreatePollPage;

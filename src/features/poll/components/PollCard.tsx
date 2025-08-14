@@ -78,7 +78,6 @@ const PollCard: React.FC<PollCardProps> = ({ poll }) => {
 
 const totalVotes = votes.reduce((sum, v) => sum + v, 0);
 
-<<<<<<< Updated upstream
 return (
   <Card sx={{ p: 2, mb: 2, bgcolor: '#fcfdfcff', borderRadius: 3 }}>
     {/* Header: Person icon, handle, college name */}
@@ -86,34 +85,6 @@ return (
       <PersonIcon fontSize="small" color="action"/>
       <Typography variant="subtitle2">
         {poll.handle || 'userHandle'} ({poll.collegeName || ''})
-=======
-  return (
-    <Card sx={{ p: 2, mb: 2, bgcolor: '#fcfdfcff', borderRadius: 3 }}>
-      {/* Header: Person icon, handle, college name */}
-      {/* Content Section */}
-        <Box display="flex" alignItems="center" gap={1} sx={{ mb: 4 }}>
-          <PersonIcon fontSize="small" color="action"/>
-          <Typography variant="subtitle2">
-            {poll.handle || 'userHandle'} ({poll.collegeName || ''})
-          </Typography>
-        </Box>
-
-      <Typography
-        variant="subtitle1"
-        fontWeight={700}
-        sx={{ mb: 1, fontSize: 18 }} // Make question bigger
-      >
-        {poll.question}
-      </Typography>
-      <Typography
-        variant="body1"
-        color="text.secondary"
-        sx={{ mb: 1, display: 'block', fontSize: 15, fontWeight: 500 }} // Make "Select one" bigger and bolder
-      >
-        {poll.allow_multiple
-          ? `Select up to ${maxSelect} option${maxSelect > 1 ? 's' : ''}`
-          : 'Select one'}
->>>>>>> Stashed changes
       </Typography>
     </Box>
 
