@@ -9,6 +9,10 @@ import CommentSection from './CommentDrawer'; // Import the updated CommentDrawe
 import { fetchComments } from '../services/loungeService'; // Import fetchComments service
 import '../../../styles/transition.css'; // Import transition styles
 import Chip from '@mui/material/Chip';
+import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
+import ThumbDownAltOutlinedIcon from '@mui/icons-material/ThumbDownAltOutlined';
+import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 
 export interface Post {
   id: number;
@@ -59,90 +63,109 @@ function nestComments(flatComments: Comment[]): Comment[] {
 
 const PostDetails: React.FC = () => {
   const location = useLocation();
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const post = location.state?.post;
 
   const [comments, setComments] = React.useState<Comment[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
+  const [showComments, setShowComments] = React.useState(false);
 
-  // Fetch comments when the component mounts
-  React.useEffect(() => {
-    if (post) {
+  // Fetch comments only when showComments is true
+  useEffect(() => {
+    if (post && showComments) {
       setLoading(true);
       fetchComments(post.id)
         .then(res => setComments(nestComments(res.data)))
         .finally(() => setLoading(false));
     }
-  }, [post]);
+  }, [post, showComments]);
 
   if (!post) {
     return <Typography variant="h6">Post not found</Typography>;
   }
 
   return (
-    <Box sx={{ position: 'relative',  minHeight: '100vh',  pb: { xs: 10, md: 10 }, }} >
-           <Card sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 3 },  boxShadow: '0 4px 24px 0 rgba(60,72,120,0.10)', background: '#fff',position: 'sticky',
-                 top: 0, 
-              height: '80vh', 
-              overflowY: 'auto',  }} >
-        <Button sx={{ position: 'absolute', left: 15, top: 15, minWidth: 36, borderRadius: 2, bgcolor: '#f5f7fa', color: '#000', fontWeight: 700, boxShadow: 0, '&:hover': { bgcolor: '#f4f5f8ff' }, }}
-                           onClick={() => navigate(-1)}
-                         >
-                           ←
-             </Button>
-            <Typography variant="h6" align="center" sx={{ mb: 2 }}>
-              View Post
-      
+    <Box sx={{ position: 'relative', minHeight: '100vh', pb: { xs: 10, md: 10 } }}>
+      <Card sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 3 }, boxShadow: '0 4px 24px 0 rgba(60,72,120,0.10)', background: '#fff', position: 'sticky', top: 0, height: '80vh', overflowY: 'auto' }}>
+        <Button sx={{ position: 'absolute', left: 15, top: 15, minWidth: 36, borderRadius: 2, bgcolor: '#f5f7fa', color: '#000', fontWeight: 700, boxShadow: 0, '&:hover': { bgcolor: '#f4f5f8ff' } }}
+          onClick={() => navigate(-1)}
+        >
+          ←
+        </Button>
+        <Typography variant="h6" align="center" sx={{ mb: 2 }}>
+          View Post
+        </Typography>
+        <Box className="screen-transition-enter" sx={{ position: 'relative', overflow: 'hidden' }}>
+          {/* Content Section */}
+          <Box display="flex" alignItems="center" gap={1} sx={{ mb: 4 }}>
+            <PersonIcon fontSize="small" color="action" />
+            <Typography variant="subtitle2">
+              {post.userHandle} ({post.institution})
             </Typography>
-     
-      <Box className="screen-transition-enter" sx={{ position: 'relative', overflow: 'hidden' }}>
-        {/* Content Section */}
-        <Box display="flex" alignItems="center" gap={1} sx={{ mb: 4 }}>
-          <PersonIcon fontSize="small" color="action"/>
-          <Typography variant="subtitle2">
-            {post.userHandle} ({post.institution})
+          </Box>
+          <Typography variant="h4" sx={{ mb: 2, fontWeight: 700 }}>
+            {post.title}
           </Typography>
-        </Box>
-        <Typography variant="h4" sx={{ mb: 2, fontWeight: 700 }}>
-          {post.title}
-        </Typography>
-
-        {post.tags && post.tags.length > 0 && (
-          <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-            {post.tags.map((tag: string) => (
-              <Chip key={tag} label={tag} size="small" sx={{ bgcolor: '#f3f6f9', fontWeight: 500 }} />
-            ))}
+          {post.tags && post.tags.length > 0 && (
+            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+              {post.tags.map((tag: string) => (
+                <Chip key={tag} label={tag} size="small" sx={{ bgcolor: '#f3f6f9', fontWeight: 500 }} />
+              ))}
+            </Box>
+          )}
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            {post.description}
+          </Typography>
+          <Box display="flex" gap={2} alignItems="center" sx={{ mb: 2 }}>
+            <Tooltip title="Like">
+              <IconButton size="small" color={post.liked ? 'primary' : 'default'}>
+                {post.liked ? (
+                  <ThumbUpAltIcon fontSize="small" />
+                ) : (
+                  <ThumbUpAltOutlinedIcon fontSize="small" />
+                )}
+              </IconButton>
+            </Tooltip>
+            <Typography variant="caption">{post.likes}</Typography>
+            <Tooltip title="Dislike">
+              <IconButton size="small" color={post.disliked ? 'error' : 'default'}>
+                {post.disliked ? (
+                  <ThumbDownAltIcon fontSize="small" />
+                ) : (
+                  <ThumbDownAltOutlinedIcon fontSize="small" />
+                )}
+              </IconButton>
+            </Tooltip>
+            <Typography variant="caption">{post.dislikes}</Typography>
+            <Tooltip title="Comment">
+              <IconButton
+                size="small"
+                color="primary"
+                onClick={() => setShowComments((prev) => !prev)}
+              >
+                <ChatBubbleOutlineOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Typography variant="caption">{post.comments}</Typography>
+            <Tooltip title="Views">
+              <IconButton size="small" color="primary">
+                <VisibilityOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Typography variant="caption">{post.views}</Typography>
           </Box>
-        )}
-
-        <Typography variant="body1" sx={{ mb: 2 }}>
-          {post.description}
-        </Typography>
-        <Box display="flex" gap={2} alignItems="center" sx={{ mb: 2 }}>
-          <Tooltip title="Like">
-            <IconButton size="small" color={post.liked ? 'primary' : 'default'}>
-              {post.liked ? (
-                <ThumbUpAltIcon fontSize="small" />
-              ) : (
-                <ThumbUpAltOutlinedIcon fontSize="small" />
-              )}
-            </IconButton>
-          </Tooltip>
-          <Typography variant="caption">{post.likes} Likes</Typography>
-          <Typography variant="caption">{post.comments} Comments</Typography>
-          <Typography variant="caption">{post.views} Views</Typography>
+          {/* Comments Section or Loader */}
+          {showComments && (
+            loading ? (
+              <Box display="flex" justifyContent="center" alignItems="center" sx={{ minHeight: 120, mb: 8 }}>
+                <CircularProgress />
+              </Box>
+            ) : (
+              <CommentSection postId={post.id} comments={comments} setComments={setComments} />
+            )
+          )}
         </Box>
-
-        {/* Comments Section or Loader */}
-        {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" sx={{ minHeight: 120, mb: 8 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <CommentSection postId={post.id} comments={comments} setComments={setComments} />
-        )}
-      </Box>
-  </Card>
+      </Card>
     </Box>
   );
 };
