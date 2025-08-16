@@ -92,33 +92,35 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
         {topLevel.map(comment => (
           <Grid item key={comment.commentId}>
             <Box sx={{ border: '1px solid #eee', borderRadius: 2, p: 2, mb: 1 }}>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box>
-                  <Typography variant="subtitle2" fontWeight={700}>
-                    @{comment.userHandle}
-                  </Typography>
-                  {comment.collegeName && (
-                    <Typography variant="caption" color="text.secondary" sx={{ ml: 0 }}>
-                      {comment.collegeName} &bull; {comment.timeAgo}
-                    </Typography>
-                  )}
-                  {!comment.collegeName && (
-                    <Typography variant="caption" color="text.secondary" sx={{ ml: 0 }}>
-                      {comment.timeAgo}
-                    </Typography>
-                  )}
-                </Box>
-                <Box>
-                  <Tooltip title="More">
-                    <IconButton size="small" onClick={e => handleMenuOpen(e, comment.commentId)}>
-                      <MoreVertIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
+              {/* Row 1: Handle + 3 dots */}
+              <Box display="flex" alignItems="center" mb={0.5}>
+                <Typography variant="subtitle2" fontWeight={700} sx={{ mr: 0.5 }}>
+                  @{comment.userHandle}
+                </Typography>
+                <Tooltip title="More">
+                  <IconButton size="small" onClick={e => handleMenuOpen(e, comment.commentId)} sx={{ p: 0.5 }}>
+                    <MoreVertIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               </Box>
+              {/* Row 2: College name & time */}
+              <Box mb={0.5}>
+                {comment.collegeName && (
+                  <Typography variant="caption" color="text.secondary">
+                    {comment.collegeName} &bull; {comment.timeAgo}
+                  </Typography>
+                )}
+                {!comment.collegeName && (
+                  <Typography variant="caption" color="text.secondary">
+                    {comment.timeAgo}
+                  </Typography>
+                )}
+              </Box>
+              {/* Row 3: Comment content */}
               <Typography variant="body2" sx={{ mt: 1, mb: 1 }}>
                 {comment.content}
               </Typography>
+              {/* Row 4: Action icons */}
               <Box display="flex" alignItems="center" gap={1} mt={1}>
                 {/* Like */}
                 <Tooltip title="Like">
@@ -176,38 +178,35 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
                 <Box sx={{ mt: 2, pl: 3, borderLeft: '2px solid #e0e0e0' }}>
                   {repliesMap[comment.commentId].map(reply => (
                     <Box key={reply.commentId} sx={{ mb: 2, background: '#f0f6ff', borderRadius: 2, p: 1 }}>
-                      <Box display="flex" alignItems="center" justifyContent="space-between">
-                        <Box>
-                          <Typography variant="subtitle2" fontWeight={700}>
-                            @{reply.userHandle}
-                          </Typography>
-                          {reply.collegeName && (
-                            <Typography variant="caption" color="text.secondary" sx={{ ml: 0 }}>
-                              {reply.collegeName} &bull; {reply.timeAgo}
-                            </Typography>
-                          )}
-                          {!reply.collegeName && (
-                            <Typography variant="caption" color="text.secondary" sx={{ ml: 0 }}>
-                              {reply.timeAgo}
-                            </Typography>
-                          )}
-                        </Box>
-                        <Box>
-                          <Tooltip title="Edit">
-                            <IconButton size="small" onClick={() => onEdit(reply.commentId)} disabled={currentUserHandle !== reply.userHandle}>
-                              <EditIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Delete">
-                            <IconButton size="small" onClick={() => onDelete(reply.commentId)} disabled={currentUserHandle !== reply.userHandle}>
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        </Box>
+                      {/* Row 1: Handle + 3 dots */}
+                      <Box display="flex" alignItems="center" mb={0.5}>
+                        <Typography variant="subtitle2" fontWeight={700} sx={{ mr: 0.5 }}>
+                          @{reply.userHandle}
+                        </Typography>
+                        <Tooltip title="More">
+                          <IconButton size="small" onClick={e => handleMenuOpen(e, reply.commentId)} sx={{ p: 0.5 }}>
+                            <MoreVertIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                       </Box>
+                      {/* Row 2: College name & time */}
+                      <Box mb={0.5}>
+                        {reply.collegeName && (
+                          <Typography variant="caption" color="text.secondary">
+                            {reply.collegeName} &bull; {reply.timeAgo}
+                          </Typography>
+                        )}
+                        {!reply.collegeName && (
+                          <Typography variant="caption" color="text.secondary">
+                            {reply.timeAgo}
+                          </Typography>
+                        )}
+                      </Box>
+                      {/* Row 3: Reply content */}
                       <Typography variant="body2" sx={{ mt: 1, mb: 1 }}>
                         {reply.content}
                       </Typography>
+                      {/* Row 4: Action icons */}
                       <Box display="flex" alignItems="center" gap={1}>
                         {/* Like */}
                         <Tooltip title="Like">
@@ -246,9 +245,14 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
       >
         <MenuItem
           onClick={() => {
-            onEdit(menuCommentId!);
+            if (comments.concat(...Object.values(repliesMap)).find(c => c.commentId === menuCommentId && isEditable(c))) {
+              onEdit(menuCommentId!);
+            }
             handleMenuClose();
           }}
+          disabled={
+            !comments.concat(...Object.values(repliesMap)).find(c => c.commentId === menuCommentId && isEditable(c))
+          }
         >
           <EditIcon fontSize="small" sx={{ mr: 1 }} />
           Edit
