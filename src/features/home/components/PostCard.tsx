@@ -11,6 +11,7 @@ import BookmarkIcon from '@mui/icons-material/Bookmark';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import PersonIcon from '@mui/icons-material/Person';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import EditIcon from '@mui/icons-material/Edit';
 import { dislikePost, savePost, unsavePost, viewPost } from '../services/loungeService';
 import '../../../styles/transition.css'; // Correct path to transition styles
 //src\features\home\components\PostCard.tsx
@@ -48,7 +49,7 @@ const PostCard: React.FC<PostCardProps> = ({
   onComment,
   onView,
   onSaveToggle,
-  tabIndex, // <-- Add this line
+  tabIndex,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [saving, setSaving] = useState(false);
@@ -56,6 +57,8 @@ const PostCard: React.FC<PostCardProps> = ({
   const descRef = React.useRef<HTMLDivElement>(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
+  const user = localStorage.getItem('user');
+  const handle = user ? JSON.parse(user).handle : '';
 
   React.useEffect(() => {
     if (descRef.current) {
@@ -92,6 +95,11 @@ const PostCard: React.FC<PostCardProps> = ({
     await viewPost(post.id);
     if (onView) onView(post.id); // Optionally update state in parent
     navigate(`/post/${post.id}`, { state: { post } });
+  };
+
+  const handleEdit = () => {
+    navigate('/lounges/:loungeId/new-post', { state: { post } }); // or use `/edit-post/${post.id}` if you have a separate edit route
+    handleMenuClose();
   };
 
   return (
@@ -143,6 +151,12 @@ const PostCard: React.FC<PostCardProps> = ({
               </>
             )}
           </MenuItem>
+          {post.userHandle === handle && (
+            <MenuItem onClick={handleEdit}>
+              <EditIcon fontSize="small" sx={{ mr: 1 }} />
+              Edit
+            </MenuItem>
+          )}
         </Menu>
       </Box>
       {/* Heading */}

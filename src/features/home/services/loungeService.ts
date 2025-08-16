@@ -30,3 +30,6 @@ export const unsavePost = (postId: number, handle: string) =>
 
 export const fetchSavedPosts = (handle: string) =>
   api.get(`/auth/users/${handle}/saved-posts`);
+
+export const updatePost = (postId: number, data: any) =>
+  api.put(`/auth/posts/${postId}`, data);
