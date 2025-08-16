@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Box, Button, Card, Container, CircularProgress, Snackbar, Alert, Tabs, Tab, Typography, IconButton
+  Box, Button, Container, CircularProgress, Snackbar, Alert, Tabs, Tab,
+  Card
 } from '@mui/material';
 import ProfileHeader from '../components/ProfileHeader';
 import ProfileActivity from '../components/ProfileActivity';
@@ -8,7 +9,6 @@ import ProfilePostList from '../components/ProfilePostList';
 import ProfileSettingsDialog from '../components/ProfileSettingsDialog';
 import { fetchUserProfile } from '../services/profileService';
 import { useNavigate } from 'react-router-dom';
-import SettingsIcon from '@mui/icons-material/Settings';
 
 const ProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -67,42 +67,51 @@ const ProfilePage: React.FC = () => {
   const joinYear = profile.joinYear && profile.joinYear > 2000 ? profile.joinYear : '';
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4, fontFamily: 'Roboto, Arial, sans-serif' }}>
-       <Card sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 3 },  boxShadow: '0 4px 24px 0 rgba(60,72,120,0.10)', background: '#fff',position: 'sticky',
-             top: 0, 
-          height: '80vh', 
-          overflowY: 'auto',  }} >
-      <Button sx={{ position: 'absolute', left: 15, top: 15, minWidth: 36, borderRadius: 2, bgcolor: '#f5f7fa', color: '#000', fontWeight: 700, boxShadow: 0, '&:hover': { bgcolor: '#f4f5f8ff' }, }}
-                    onClick={() =>  navigate('/home', { replace: true })}
-                  >
-                    ←
-         </Button>
-        {/* Settings Icon Top-Right */}
-        <IconButton
-          sx={{ position: 'absolute', top: 16, right: 16 }}
-          onClick={() => setSettingsOpen(true)}
-        >
-          <SettingsIcon />
-        </IconButton>
-
-        {/* Profile Header Centered */}
-        <Box display="flex" flexDirection="column" alignItems="center" mt={2} mb={2}>
-          <ProfileHeader
-            handle={profile.handle}
-            collegeName={profile.collegeName}
-            collegeEmail={profile.collegeEmail}
-            joinYear={joinYear}
-            profilePicture={profile.profilePicture}
-          />
+    <>
+      <Box sx={{ position: 'relative', minHeight: '100vh', pb: { xs: 10, md: 10 } }}>
+        <Card sx={{
+          maxWidth: 1000,
+          mx: 'auto',
+          p: { xs: 2, md: 3 },
+          boxShadow: '0 4px 24px 0 rgba(60,72,120,0.10)',
+          background: '#fff',
+          position: 'sticky',
+          top: 0,
+          height: '80vh',
+          overflowY: 'auto',
+        }}>
+          <Button sx={{
+            position: 'absolute',
+            left: 15,
+            top: 15,
+            minWidth: 36,
+            borderRadius: 2,
+            bgcolor: '#f5f7fa',
+            color: '#000',
+            fontWeight: 700,
+            boxShadow: 0,
+            '&:hover': { bgcolor: '#f4f5f8ff' },
+          }}
+            onClick={() => navigate(-1)}
+          >
+            ←
+          </Button>
+          <Box display="flex" flexDirection="column" alignItems="center" mt={4} mb={2}>
+            <ProfileHeader
+              handle={profile.handle}
+              collegeName={profile.collegeName}
+              joinYear={joinYear}
+              profilePicture={profile.profilePicture}
+              onEditPhoto={() => setSettingsOpen(true)}
+            />
+          </Box>
+        
+        <Box>
+          <Box sx={{ mb: 1 }}>
+            <span style={{ fontWeight: 700, fontSize: '1rem' }}>Activity</span>
+          </Box>
+          <ProfileActivity {...profile.activity} />
         </Box>
-
-        {/* Activity Section */}
-        <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1, textAlign: 'left' }}>
-          Activity
-        </Typography>
-        <ProfileActivity {...profile.activity} />
-
-        {/* Tabs for Posts */}
         <Tabs
           value={tabIndex}
           onChange={(_, v) => setTabIndex(v)}
@@ -121,12 +130,14 @@ const ProfilePage: React.FC = () => {
               title=""
               posts={profile.yourPosts}
               onClickPost={handlePostClick}
+              noCard
             />
           )}
           {tabIndex === 1 && (
             <ProfilePostList
               title=""
               posts={profile.savedPosts}
+              noCard
             />
           )}
           {tabIndex === 2 && (
@@ -135,10 +146,10 @@ const ProfilePage: React.FC = () => {
               posts={profile.draftPosts}
               onClickPost={handleDraftClick}
               isDraft
+              noCard
             />
           )}
         </Box>
-
         <ProfileSettingsDialog
           open={settingsOpen}
           onClose={() => setSettingsOpen(false)}
@@ -153,7 +164,8 @@ const ProfilePage: React.FC = () => {
           <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
         </Snackbar>
       </Card>
-    </Container>
+      </Box>
+    </>
   );
 };
 
