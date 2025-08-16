@@ -1,18 +1,20 @@
 import React, { useEffect } from 'react';
-import { Box, Button,Typography, IconButton, Tooltip,Card, Container, CircularProgress } from '@mui/material';
+import { Box, Button,Typography, IconButton, Tooltip,Card, Container, CircularProgress, TextField } from '@mui/material';
 import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import PersonIcon from '@mui/icons-material/Person';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import CommentSection from './CommentDrawer'; // Import the updated CommentDrawer component
-import { fetchComments } from '../services/loungeService'; // Import fetchComments service
+import { fetchComments, addComment } from '../services/loungeService'; // Import fetchComments and addComment services
 import '../../../styles/transition.css'; // Import transition styles
 import Chip from '@mui/material/Chip';
 import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
 import ThumbDownAltOutlinedIcon from '@mui/icons-material/ThumbDownAltOutlined';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import NestedComments, { NestedComment } from './NestedComments';
+import SendIcon from '@mui/icons-material/Send';
 
 export interface Post {
   id: number;
@@ -66,23 +68,68 @@ const PostDetails: React.FC = () => {
   const navigate = useNavigate();
   const post = location.state?.post;
 
-  const [comments, setComments] = React.useState<Comment[]>([]);
+  const [comments, setComments] = React.useState<NestedComment[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [showComments, setShowComments] = React.useState(false);
+  const [newComment, setNewComment] = React.useState('');
+  const [replyToId, setReplyToId] = React.useState<number | null>(null);
+  const [replyValue, setReplyValue] = React.useState('');
+
+  // Get current user handle from localStorage
+  const user = localStorage.getItem('user');
+  const currentUserHandle = user ? JSON.parse(user).handle : '';
 
   // Fetch comments only when showComments is true
   useEffect(() => {
     if (post && showComments) {
       setLoading(true);
       fetchComments(post.id)
-        .then(res => setComments(nestComments(res.data)))
+        .then(res => setComments(res.data)) // <-- flat array
         .finally(() => setLoading(false));
     }
   }, [post, showComments]);
 
+  const handleAddComment = async () => {
+    if (!newComment.trim()) return;
+    await addComment(post.id, newComment, currentUserHandle);
+    setNewComment('');
+    const res = await fetchComments(post.id);
+    setComments(res.data); // <-- flat array
+  };
+
+  // When user clicks "Reply" icon
+  const handleReplyIconClick = (parentId: number) => {
+    setReplyToId(parentId);
+    setReplyValue('');
+  };
+
+  // When user submits a reply
+  const handleAddReply = async (parentId: number, reply?: string) => {
+    const replyText = reply !== undefined ? reply : replyValue;
+    if (!replyText.trim()) {
+      setReplyToId(parentId); // open input
+      return;
+    }
+    await addComment(post.id, replyText, currentUserHandle, parentId);
+    setReplyValue('');
+    setReplyToId(null);
+    const res = await fetchComments(post.id);
+    setComments(res.data); // <-- flat array
+  };
+
+  const handleReplyCancel = () => {
+    setReplyToId(null);
+    setReplyValue('');
+  };
+
   if (!post) {
     return <Typography variant="h6">Post not found</Typography>;
   }
+
+  // Handler stubs (replace with your real logic)
+  const handleEdit = (commentId: number) => { /* open edit input, etc. */ };
+  const handleDelete = (commentId: number) => { /* delete logic */ };
+  const handleLike = (commentId: number) => { /* like logic */ };
 
   return (
     <Box sx={{ position: 'relative', minHeight: '100vh', pb: { xs: 10, md: 10 } }}>
@@ -161,7 +208,42 @@ const PostDetails: React.FC = () => {
                 <CircularProgress />
               </Box>
             ) : (
-              <CommentSection postId={post.id} comments={comments} setComments={setComments} />
+              <>
+                <Box display="flex" gap={1} mb={2} alignItems="flex-end">
+                  <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Add a comment..."
+                    value={newComment}
+                    onChange={e => setNewComment(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleAddComment();
+                      }
+                    }}
+                  />
+                  <Tooltip title="Send">
+                    <IconButton onClick={handleAddComment} color="primary">
+                      <SendIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+                <NestedComments
+                  comments={comments}
+                  onAddReply={(parentId, reply) =>
+                    replyToId === parentId ? handleAddReply(parentId, reply) : handleReplyIconClick(parentId)
+                  }
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onLike={handleLike}
+                  currentUserHandle={currentUserHandle}
+                  replyToId={replyToId}
+                  replyValue={replyValue}
+                  setReplyValue={setReplyValue}
+                  onReplyCancel={handleReplyCancel}
+                />
+              </>
             )
           )}
         </Box>

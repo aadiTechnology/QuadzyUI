@@ -1,15 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Box, Fab, CircularProgress, IconButton, Tabs, Tab, TextField, Card } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import LoungeTabs from '../components/LoungeTabs';
 import PostList from '../components/PostList';
 import { fetchLounges, fetchPosts, createPost, likePost, commentPost, viewPost, fetchComments, addComment, dislikePost, savePost, unsavePost } from '../services/loungeService';
 import type { Comment } from '../../../types';
-import { useNavigate } from 'react-router-dom';
 import PollCard from '../../poll/components/PollCard';
 
 const HomePage: React.FC = () => {
+  const location = useLocation();
   const [lounges, setLounges] = useState<{ id: number; name: string }[]>([]);
  
   // Get my collegeId from token user object
@@ -309,11 +310,7 @@ const myHandle = userObj.handle || localStorage.getItem('userHandle') || 'userHa
     height: '80vh', 
     overflowY: 'auto',  }} >
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Tabs
-          value={tabIndex}
-          onChange={(_, v) => setTabIndex(v)}
-          variant="fullWidth"
-        >
+        <Tabs value={tabIndex} onChange={(_, v) => setTabIndex(v)} variant="fullWidth" >
           <Tab
             label={lounges.find((c: any) => c.id === myCollegeId)?.name || 'My College'}
           />
@@ -327,36 +324,15 @@ const myHandle = userObj.handle || localStorage.getItem('userHandle') || 'userHa
           <Tab label="Pulse" />
         </Tabs>
         {showCollegeDropdown && (
-          <Box sx={{
-            position: 'absolute',
-            top: 60,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 10,
-            background: '#fff',
-            boxShadow: 3,
-            p: 2,
-            borderRadius: 2,
-            minWidth: 250,
+          <Box sx={{ position: 'absolute', top: 60, left: '50%', transform: 'translateX(-50%)', zIndex: 10, background: '#fff', boxShadow: 3, p: 2, borderRadius: 2, minWidth: 250,
           }}>
-            <TextField
-              autoFocus
-              placeholder="Search college"
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              fullWidth
-              size="small"
-              sx={{ mb: 1 }}
-            />
+            <TextField autoFocus placeholder="Search college" value={searchTerm}fullWidth size="small" sx={{ mb: 1 }}
+              onChange={e => setSearchTerm(e.target.value)}  />
             <Box sx={{ maxHeight: 200, overflowY: 'auto' }}>
               {filteredLounges.map((c: any) => (
                 <Box
                   key={c.id}
-                  sx={{
-                    p: 1,
-                    cursor: 'pointer',
-                    '&:hover': { background: '#f0f0f0' }
-                  }}
+                  sx={{ p: 1, cursor: 'pointer', '&:hover': { background: '#f0f0f0' }  }}
                   onClick={() => {
                     setOtherCollegeId(c.id);
                     setShowCollegeDropdown(false);
@@ -396,13 +372,7 @@ const myHandle = userObj.handle || localStorage.getItem('userHandle') || 'userHa
         </Box>
       )}
       {loading ? (
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="60vh"
-          sx={{ mb: 10 }} // Add margin-bottom to lift it above the sticky footer
-        >
+        <Box  display="flex" justifyContent="center" alignItems="center" minHeight="60vh" sx={{ mb: 10 }}  >
           <CircularProgress />
         </Box>
       ) : (
@@ -418,12 +388,7 @@ const myHandle = userObj.handle || localStorage.getItem('userHandle') || 'userHa
       )}
       <Fab
         color="primary"
-        sx={{
-          position: 'fixed',
-          bottom: 90, // Place it above the sticky footer (footer height + some gap)
-          right: 26,
-          zIndex: 1201, // Make sure it's above the footer
-        }}
+        sx={{ position: 'fixed',  bottom: 90,  right: 26,  zIndex: 1201, }}
         onClick={() => {
           let collegeId, collegeName, isPrivate;
           
@@ -445,12 +410,7 @@ const myHandle = userObj.handle || localStorage.getItem('userHandle') || 'userHa
           }
           
           navigate(`/lounges/${tabIndex === 0 ? myCollegeId : otherCollegeId}/new-post`, {
-            state: {
-              collegeId,
-              collegeName,
-              isPrivate,
-              tabIndex
-            }
+            state: { collegeId, collegeName, isPrivate, tabIndex }
           });
         }}
       >

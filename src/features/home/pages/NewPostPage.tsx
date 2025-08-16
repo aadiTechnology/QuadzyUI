@@ -10,7 +10,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import PollIcon from '@mui/icons-material/Poll';
 
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { createPost, fetchLounges } from '../services/loungeService';
+import { createPost, fetchLounges, updatePost } from '../services/loungeService';
 
 // Pre-defined tags
 const PREDEFINED_TAGS = [
@@ -25,6 +25,8 @@ const NewPostPage: React.FC = () => {
   const { loungeId } = useParams<{ loungeId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const editingPost = location.state?.post;
+
   const { collegeId, collegeName, isPrivate, tabIndex } = location.state || {};
 
   console.log('NewPostPage location state:', { collegeId, collegeName, isPrivate, tabIndex });
@@ -42,6 +44,17 @@ const NewPostPage: React.FC = () => {
   useEffect(() => {
     fetchLounges().then(res => setLounges(res.data));
   }, []);
+
+  useEffect(() => {
+    if (editingPost) {
+      setTitle(editingPost.title);
+      setDescription(editingPost.description);
+      setTags(editingPost.tags || []);
+      setCollegeNameState(editingPost.institution || editingPost.collegeName || '');
+      setSelectedLounge(editingPost.loungeId?.toString() || '');
+      // ...set other fields as needed
+    }
+  }, [editingPost]);
 
   const validate = () => {
     const errs: { [key: string]: string } = {};
@@ -116,20 +129,28 @@ const NewPostPage: React.FC = () => {
     }
 
     const payload: any = {
-      loungeId: Number(collegeId),
+      loungeId: Number(selectedLounge),
       title,
-      description: description,
+      description,
       tags,
       isPrivate: isPrivate,
       media: [],
       handle: JSON.parse(userHandle||"").handle,
       collegeName: collegeNameState,
     };
+
     try {
-      await createPost(Number(selectedLounge), payload);
-      navigate(-1);
+      if (editingPost && editingPost.id) {
+        // EDIT MODE
+        await updatePost(editingPost.id, payload);
+      } else {
+        // CREATE MODE
+        await createPost(Number(selectedLounge), payload);
+      }
+      // After successful update or create
+      navigate('/home', { state: { refresh: true } });
     } catch {
-      setErrors({ submit: 'Failed to create post. Try again.' });
+      setErrors({ submit: 'Failed to save post. Try again.' });
     }
   };
 
