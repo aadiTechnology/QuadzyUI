@@ -22,11 +22,16 @@ export const addComment = (
 
 export const dislikePost = (postId: number) => api.post(`/auth/posts/${postId}/dislike`);
 
-export const savePost = (postId: number, handle: string) =>
-  api.post(`/auth/posts/${postId}/save?handle=${handle}`);
+export const savePost = (postId: number, handle: string) => api.post(`/auth/posts/${postId}/save?handle=${handle}`);
 
-export const unsavePost = (postId: number, handle: string) =>
-  api.delete(`/auth/posts/${postId}/save?handle=${handle}`);
+export const likeComment = (commentId: number) => api.post(`/auth/comments/${commentId}/like`);
+
+export const dislikeComment = (commentId: number) =>
+  api.post(`/auth/comments/${commentId}/dislike`);
+
+export const viewComment = (commentId: number) => api.post(`/auth/comments/${commentId}/view`);
+
+export const unsavePost = (postId: number, handle: string) => api.delete(`/auth/posts/${postId}/save?handle=${handle}`);
 
 export const fetchSavedPosts = (handle: string) =>
   api.get(`/auth/users/${handle}/saved-posts`);

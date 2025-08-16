@@ -2,6 +2,10 @@ import React from 'react';
 import { Container, Grid, Box, Typography, IconButton, Tooltip, TextField, Button } from '@mui/material';
 import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
+import ThumbDownAltOutlinedIcon from '@mui/icons-material/ThumbDownAltOutlined';
+import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
+import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import ReplyOutlinedIcon from '@mui/icons-material/ReplyOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -13,12 +17,16 @@ export interface NestedComment {
   commentId: number;
   parentId?: number | null;
   userHandle: string;
+  collegeName?: string; // <-- Add this line
   content: string;
   timeAgo: string;
   likes: number;
   liked?: boolean;
+  disliked?: boolean;   // <-- add this
+  dislikes?: number;    // <-- add this
   createdAt?: string | null;
   replies?: NestedComment[];
+  views?: number; // <-- add this
 }
 
 interface NestedCommentsProps {
@@ -27,11 +35,13 @@ interface NestedCommentsProps {
   onEdit: (commentId: number) => void;
   onDelete: (commentId: number) => void;
   onLike?: (commentId: number) => void;
+  onDislike?: (commentId: number) => void;
   currentUserHandle?: string;
   replyToId: number | null;
   replyValue: string;
   setReplyValue: (v: string) => void;
   onReplyCancel: () => void;
+  onView?: (commentId: number) => void;
 }
 
 const NestedComments: React.FC<NestedCommentsProps> = ({
@@ -40,6 +50,7 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
   onEdit,
   onDelete,
   onLike,
+  onDislike,
   currentUserHandle,
   replyToId,
   replyValue,
@@ -86,9 +97,16 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
                   <Typography variant="subtitle2" fontWeight={700}>
                     @{comment.userHandle}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                    {comment.timeAgo}
-                  </Typography>
+                  {comment.collegeName && (
+                    <Typography variant="caption" color="text.secondary" sx={{ ml: 0 }}>
+                      {comment.collegeName} &bull; {comment.timeAgo}
+                    </Typography>
+                  )}
+                  {!comment.collegeName && (
+                    <Typography variant="caption" color="text.secondary" sx={{ ml: 0 }}>
+                      {comment.timeAgo}
+                    </Typography>
+                  )}
                 </Box>
                 <Box>
                   <Tooltip title="More">
@@ -101,18 +119,34 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
               <Typography variant="body2" sx={{ mt: 1, mb: 1 }}>
                 {comment.content}
               </Typography>
-              <Box display="flex" alignItems="center" gap={1}>
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                {/* Like */}
                 <Tooltip title="Like">
                   <IconButton size="small" onClick={() => onLike && onLike(comment.commentId)} color={comment.liked ? 'primary' : 'default'}>
                     {comment.liked ? <ThumbUpAltIcon fontSize="small" /> : <ThumbUpAltOutlinedIcon fontSize="small" />}
                   </IconButton>
                 </Tooltip>
                 <Typography variant="caption">{comment.likes}</Typography>
+                {/* Dislike */}
+                <Tooltip title="Dislike">
+                  <IconButton size="small" onClick={() => onDislike && onDislike(comment.commentId)} color={comment.disliked ? 'error' : 'default'}>
+                    {comment.disliked ? <ThumbDownAltIcon fontSize="small" /> : <ThumbDownAltOutlinedIcon fontSize="small" />}
+                  </IconButton>
+                </Tooltip>
+                <Typography variant="caption">{comment.dislikes}</Typography>
+                {/* Reply */}
                 <Tooltip title="Reply">
                   <IconButton size="small" onClick={() => onAddReply(comment.commentId, '')}>
                     <ReplyOutlinedIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
+                {/* Views */}
+                <Tooltip title="Views">
+                  <IconButton size="small">
+                    <VisibilityOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Typography variant="caption">{comment.views}</Typography>
               </Box>
               {/* Reply input */}
               {replyToId === comment.commentId && (
@@ -147,9 +181,16 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
                           <Typography variant="subtitle2" fontWeight={700}>
                             @{reply.userHandle}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                            {reply.timeAgo}
-                          </Typography>
+                          {reply.collegeName && (
+                            <Typography variant="caption" color="text.secondary" sx={{ ml: 0 }}>
+                              {reply.collegeName} &bull; {reply.timeAgo}
+                            </Typography>
+                          )}
+                          {!reply.collegeName && (
+                            <Typography variant="caption" color="text.secondary" sx={{ ml: 0 }}>
+                              {reply.timeAgo}
+                            </Typography>
+                          )}
                         </Box>
                         <Box>
                           <Tooltip title="Edit">
@@ -168,12 +209,27 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
                         {reply.content}
                       </Typography>
                       <Box display="flex" alignItems="center" gap={1}>
+                        {/* Like */}
                         <Tooltip title="Like">
                           <IconButton size="small" onClick={() => onLike && onLike(reply.commentId)} color={reply.liked ? 'primary' : 'default'}>
                             {reply.liked ? <ThumbUpAltIcon fontSize="small" /> : <ThumbUpAltOutlinedIcon fontSize="small" />}
                           </IconButton>
                         </Tooltip>
                         <Typography variant="caption">{reply.likes}</Typography>
+                        {/* Dislike */}
+                        <Tooltip title="Dislike">
+                          <IconButton size="small" onClick={() => onDislike && onDislike(reply.commentId)} color={reply.disliked ? 'error' : 'default'}>
+                            {reply.disliked ? <ThumbDownAltIcon fontSize="small" /> : <ThumbDownAltOutlinedIcon fontSize="small" />}
+                          </IconButton>
+                        </Tooltip>
+                        <Typography variant="caption">{reply.dislikes}</Typography>
+                        {/* Views */}
+                        <Tooltip title="Views">
+                          <IconButton size="small">
+                            <VisibilityOutlinedIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Typography variant="caption">{reply.views}</Typography>
                       </Box>
                     </Box>
                   ))}
@@ -188,8 +244,15 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem onClick={handleMenuClose}>Edit</MenuItem>
-        {/* <MenuItem onClick={handleMenuClose}>Delete</MenuItem> */}
+        <MenuItem
+          onClick={() => {
+            onEdit(menuCommentId!);
+            handleMenuClose();
+          }}
+        >
+          <EditIcon fontSize="small" sx={{ mr: 1 }} />
+          Edit
+        </MenuItem>
       </Menu>
     </Container>
   );

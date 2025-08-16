@@ -6,7 +6,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import CommentSection from './CommentDrawer'; // Import the updated CommentDrawer component
-import { fetchComments, addComment } from '../services/loungeService'; // Import fetchComments and addComment services
+import { fetchComments, addComment, likeComment, dislikeComment, viewComment } from '../services/loungeService'; // Import fetchComments and addComment services
 import '../../../styles/transition.css'; // Import transition styles
 import Chip from '@mui/material/Chip';
 import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
@@ -129,7 +129,23 @@ const PostDetails: React.FC = () => {
   // Handler stubs (replace with your real logic)
   const handleEdit = (commentId: number) => { /* open edit input, etc. */ };
   const handleDelete = (commentId: number) => { /* delete logic */ };
-  const handleLike = (commentId: number) => { /* like logic */ };
+  const handleLike = async (commentId: number) => {
+    await likeComment(commentId);
+    const res = await fetchComments(post.id);
+    setComments(res.data);
+  };
+
+  const handleDislike = async (commentId: number) => {
+    await dislikeComment(commentId);
+    const res = await fetchComments(post.id);
+    setComments(res.data);
+  };
+
+  const handleView = async (commentId: number) => {
+    await viewComment(commentId);
+    const res = await fetchComments(post.id);
+    setComments(res.data);
+  };
 
   return (
     <Box sx={{ position: 'relative', minHeight: '100vh', pb: { xs: 10, md: 10 } }}>
@@ -231,12 +247,12 @@ const PostDetails: React.FC = () => {
                 </Box>
                 <NestedComments
                   comments={comments}
-                  onAddReply={(parentId, reply) =>
-                    replyToId === parentId ? handleAddReply(parentId, reply) : handleReplyIconClick(parentId)
-                  }
+                  onAddReply={handleAddReply}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   onLike={handleLike}
+                  onDislike={handleDislike}
+                  onView={handleView}
                   currentUserHandle={currentUserHandle}
                   replyToId={replyToId}
                   replyValue={replyValue}
