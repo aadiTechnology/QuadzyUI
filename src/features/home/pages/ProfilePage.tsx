@@ -1,344 +1,158 @@
-// Create file: src/features/home/pages/ProfilePage.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Container,
-  Box,
-  Typography,
-  Avatar,
-  Card,
-  Button,
-  Grid,
-  Divider,
-  IconButton,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Box, Button, Card, Container, CircularProgress, Snackbar, Alert, Tabs, Tab, Typography, IconButton
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
-import PersonIcon from '@mui/icons-material/Person';
-import SchoolIcon from '@mui/icons-material/School';
-import EmailIcon from '@mui/icons-material/Email';
+import ProfileHeader from '../components/ProfileHeader';
+import ProfileActivity from '../components/ProfileActivity';
+import ProfilePostList from '../components/ProfilePostList';
+import ProfileSettingsDialog from '../components/ProfileSettingsDialog';
+import { fetchUserProfile } from '../services/profileService';
 import { useNavigate } from 'react-router-dom';
-import TopPosts from '../components/TopPosts'; // Import the new component
-
-interface UserProfile {
-  handle: string;
-  email: string;
-  collegeName: string;
-  collegeId: number | null;
-  profilePicture?: string;
-  joinedDate: string;
-  postsCount: number;
-  likesCount: number;
-}
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const ProfilePage: React.FC = () => {
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
+  const [tabIndex, setTabIndex] = useState(0);
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [newHandle, setNewHandle] = useState('');
-  const [profilePicture, setProfilePicture] = useState<string | null>(null);
 
   useEffect(() => {
-    loadUserProfile();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const handle = user.handle;
+    if (!handle) {
+      setSnackbar({ open: true, message: 'User not found. Please log in.', severity: 'error' });
+      setLoading(false);
+      return;
+    }
+    fetchUserProfile(handle)
+      .then(setProfile)
+      .catch(() => setSnackbar({ open: true, message: 'Failed to load profile.', severity: 'error' }))
+      .finally(() => setLoading(false));
   }, []);
 
-  const loadUserProfile = () => {
-    try {
-      const userHandle = localStorage.getItem('user');
-      const collegeName = localStorage.getItem('collegeName');
-      const email = localStorage.getItem('email');
-      const collegeId = localStorage.getItem('collegeId');
-      
-      if (userHandle) {
-        const parsedUser = JSON.parse(userHandle);
-        const userProfile: UserProfile = {
-          handle: parsedUser.handle || '@user',
-          email: email || 'user@college.edu',
-          collegeName: collegeName || 'Your College',
-          collegeId: collegeId ? parseInt(collegeId) : null,
-          profilePicture: localStorage.getItem('profilePicture') ?? undefined,
-          joinedDate: '2024',
-          postsCount: 0,
-          likesCount: 0,
-        };
-        setProfile(userProfile);
-        setNewHandle(userProfile.handle);
-        setProfilePicture(userProfile.profilePicture ?? null);
-      }
-    } catch (error) {
-      console.error('Error loading profile:', error);
-    }
+  const handleSettingsSave = (data: { handle: string; profilePicture?: string }) => {
+    setProfile((prev: any) => ({
+      ...prev,
+      handle: data.handle,
+      profilePicture: data.profilePicture,
+    }));
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    user.handle = data.handle;
+    localStorage.setItem('user', JSON.stringify(user));
+    if (data.profilePicture) localStorage.setItem('profilePicture', data.profilePicture);
+    setSnackbar({ open: true, message: 'Profile updated.', severity: 'success' });
   };
 
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setProfilePicture(result);
-        localStorage.setItem('profilePicture', result);
-        if (profile) {
-          setProfile({ ...profile, profilePicture: result });
-        }
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleDraftClick = (draft: any) => {
+    navigate('/lounges/0/new-post', { state: { draft } });
   };
 
-  const handleUpdateHandle = () => {
-    if (profile && newHandle.trim()) {
-      const updatedProfile = { ...profile, handle: newHandle };
-      setProfile(updatedProfile);
-      
-      // Update localStorage
-      const userHandle = localStorage.getItem('user');
-      if (userHandle) {
-        const parsedUser = JSON.parse(userHandle);
-        parsedUser.handle = newHandle;
-        localStorage.setItem('user', JSON.stringify(parsedUser));
-        localStorage.setItem('userHandle', newHandle);
-      }
-      
-      setEditDialogOpen(false);
-    }
+  const handlePostClick = (post: any) => {
+    navigate(`/post/${post.postId || post.id}`, { state: { post } });
   };
 
-  const handleRemovePhoto = () => {
-    setProfilePicture(null);
-    localStorage.removeItem('profilePicture');
-    if (profile) {
-      setProfile({ ...profile, profilePicture: undefined });
-    }
-  };
-
-  if (!profile) {
+  if (loading) {
     return (
-      <Container maxWidth="sm" sx={{ py: 2 }}>
-        <Typography variant="h6">Loading profile...</Typography>
-      </Container>
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+        <CircularProgress />
+      </Box>
     );
   }
 
+  if (!profile) return null;
+
+  // Ensure joinYear is valid
+  const joinYear = profile.joinYear && profile.joinYear > 2000 ? profile.joinYear : '';
+
   return (
-    <Container maxWidth="sm" sx={{ py: 2 }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Button
-          sx={{
-            position: 'absolute',
-            left: 30,
-            top: 89,
-            minWidth: 36,
-            borderRadius: 2,
-            bgcolor: '#f5f7fa',
-            color: '#000',
-            fontWeight: 700,
-            boxShadow: 0,
-            '&:hover': { bgcolor: '#e3eafc' },
-          }}
-          onClick={() => navigate(-1)}
+    <Container maxWidth="sm" sx={{ py: 4, fontFamily: 'Roboto, Arial, sans-serif' }}>
+       <Card sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 3 },  boxShadow: '0 4px 24px 0 rgba(60,72,120,0.10)', background: '#fff',position: 'sticky',
+             top: 0, 
+          height: '80vh', 
+          overflowY: 'auto',  }} >
+      <Button sx={{ position: 'absolute', left: 15, top: 15, minWidth: 36, borderRadius: 2, bgcolor: '#f5f7fa', color: '#000', fontWeight: 700, boxShadow: 0, '&:hover': { bgcolor: '#f4f5f8ff' }, }}
+                    onClick={() =>  navigate('/home', { replace: true })}
+                  >
+                    ←
+         </Button>
+        {/* Settings Icon Top-Right */}
+        <IconButton
+          sx={{ position: 'absolute', top: 16, right: 16 }}
+          onClick={() => setSettingsOpen(true)}
         >
-          ←
-        </Button>
-        <Typography variant="h6" align="center" sx={{ width: '100%', fontWeight: 700 }}>
-          Profile
-        </Typography>
-      </Box>
+          <SettingsIcon />
+        </IconButton>
 
-      {/* Profile Card */}
-      <Card sx={{ p: 3, borderRadius: 3, boxShadow: 2, mb: 3 }}>
-        {/* Profile Picture Section */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
-          <Box sx={{ position: 'relative' }}>
-            <Avatar
-              sx={{
-                width: 120,
-                height: 120,
-                mb: 2,
-                bgcolor: profilePicture ? 'transparent' : 'primary.main',
-                fontSize: '3rem',
-              }}
-              src={profilePicture || undefined}
-            >
-              {!profilePicture && <PersonIcon sx={{ fontSize: '4rem' }} />}
-            </Avatar>
-            
-            {/* Photo Upload Button */}
-            <IconButton
-              sx={{
-                position: 'absolute',
-                bottom: 16,
-                right: -8,
-                bgcolor: 'primary.main',
-                color: 'white',
-                width: 36,
-                height: 36,
-                '&:hover': { bgcolor: 'primary.dark' },
-              }}
-              component="label"
-            >
-              <CameraAltIcon fontSize="small" />
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={handlePhotoUpload}
-              />
-            </IconButton>
-          </Box>
-
-          {/* Remove Photo Button */}
-          {profilePicture && (
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={handleRemovePhoto}
-              sx={{ mb: 2 }}
-            >
-              Remove Photo
-            </Button>
-          )}
-
-          {/* Handle */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <Typography variant="h5" fontWeight="bold" color="primary">
-              {profile.handle}
-            </Typography>
-            <IconButton size="small" onClick={() => setEditDialogOpen(true)}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Box>
+        {/* Profile Header Centered */}
+        <Box display="flex" flexDirection="column" alignItems="center" mt={2} mb={2}>
+          <ProfileHeader
+            handle={profile.handle}
+            collegeName={profile.collegeName}
+            collegeEmail={profile.collegeEmail}
+            joinYear={joinYear}
+            profilePicture={profile.profilePicture}
+          />
         </Box>
 
-        <Divider sx={{ mb: 3 }} />
-
-        {/* Profile Information */}
-        <Grid container spacing={2}>
-          {/* <Grid item xs={12}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-              <SchoolIcon color="action" />
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  College
-                </Typography>
-                <Typography variant="body1">{profile.collegeName}</Typography>
-              </Box>
-            </Box>
-          </Grid> */}
-
-          {/* <Grid item xs={12}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-              <EmailIcon color="action" />
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Email
-                </Typography>
-                <Typography variant="body1">{profile.email}</Typography>
-              </Box>
-            </Box>
-          </Grid> */}
-
-          <Grid item xs={6}>
-            <Box sx={{ textAlign: 'center', p: 2, bgcolor: '#f5f5f5', borderRadius: 2 }}>
-              <Typography variant="h6" fontWeight="bold">
-                {profile.postsCount}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Posts
-              </Typography>
-            </Box>
-          </Grid>
-
-          <Grid item xs={6}>
-            <Box sx={{ textAlign: 'center', p: 2, bgcolor: '#f5f5f5', borderRadius: 2 }}>
-              <Typography variant="h6" fontWeight="bold">
-                {profile.likesCount}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Likes
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
-      </Card>
-
-      {/* Top Posts Section */}
-      <Box sx={{ mb: 3 }}>
-        <TopPosts 
-          userCollegeId={profile.collegeId} 
-          userHandle={profile.handle} 
-        />
-      </Box>
-
-      {/* Additional Actions */}
-      <Card sx={{ p: 2, borderRadius: 3, boxShadow: 1 }}>
-        <Typography variant="subtitle1" fontWeight="600" sx={{ mb: 2 }}>
-          Account Actions
+        {/* Activity Section */}
+        <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1, textAlign: 'left' }}>
+          Activity
         </Typography>
-        <Button
-          variant="outlined"
-          fullWidth
-          sx={{ mb: 1, justifyContent: 'flex-start' }}
-          onClick={() => {
-            // Add settings navigation
-            console.log('Navigate to settings');
-          }}
-        >
-          Settings
-        </Button>
-        <Button
-          variant="outlined"
-          fullWidth
-          sx={{ mb: 1, justifyContent: 'flex-start' }}
-          onClick={() => {
-            // Add privacy navigation
-            console.log('Navigate to privacy');
-          }}
-        >
-          Privacy
-        </Button>
-        <Button
-          variant="outlined"
-          color="error"
-          fullWidth
-          sx={{ justifyContent: 'flex-start' }}
-          onClick={() => {
-            // Logout functionality
-            localStorage.clear();
-            navigate('/login');
-          }}
-        >
-          Logout
-        </Button>
-      </Card>
+        <ProfileActivity {...profile.activity} />
 
-      {/* Edit Handle Dialog */}
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
-        <DialogTitle>Edit Handle</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Handle"
-            fullWidth
-            variant="outlined"
-            value={newHandle}
-            onChange={(e) => setNewHandle(e.target.value)}
-            placeholder="@yourhandle"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleUpdateHandle} variant="contained">
-            Update
-          </Button>
-        </DialogActions>
-      </Dialog>
+        {/* Tabs for Posts */}
+        <Tabs
+          value={tabIndex}
+          onChange={(_, v) => setTabIndex(v)}
+          variant="fullWidth"
+          indicatorColor="primary"
+          textColor="primary"
+          sx={{ mt: 2, mb: 2 }}
+        >
+          <Tab label="Your Posts" />
+          <Tab label="Saved Posts" />
+          <Tab label="Draft Posts" />
+        </Tabs>
+        <Box>
+          {tabIndex === 0 && (
+            <ProfilePostList
+              title=""
+              posts={profile.yourPosts}
+              onClickPost={handlePostClick}
+            />
+          )}
+          {tabIndex === 1 && (
+            <ProfilePostList
+              title=""
+              posts={profile.savedPosts}
+            />
+          )}
+          {tabIndex === 2 && (
+            <ProfilePostList
+              title=""
+              posts={profile.draftPosts}
+              onClickPost={handleDraftClick}
+              isDraft
+            />
+          )}
+        </Box>
+
+        <ProfileSettingsDialog
+          open={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+          profile={{ handle: profile.handle, profilePicture: profile.profilePicture }}
+          onSave={handleSettingsSave}
+        />
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={2000}
+          onClose={() => setSnackbar(s => ({ ...s, open: false }))}
+        >
+          <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+        </Snackbar>
+      </Card>
     </Container>
   );
 };
