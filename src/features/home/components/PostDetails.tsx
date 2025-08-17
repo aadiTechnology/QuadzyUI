@@ -6,7 +6,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import CommentSection from './CommentDrawer'; // Import the updated CommentDrawer component
-import { fetchComments, addComment, likeComment, dislikeComment, viewComment } from '../services/loungeService'; // Import fetchComments and addComment services
+import { fetchComments, addComment, likeComment, dislikeComment, viewComment, savePost, unsavePost, updatePost } from '../services/loungeService'; // Import fetchComments and addComment services
 import '../../../styles/transition.css'; // Import transition styles
 import Chip from '@mui/material/Chip';
 import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
@@ -79,6 +79,10 @@ const PostDetails: React.FC = () => {
   const [replyToId, setReplyToId] = React.useState<number | null>(null);
   const [replyValue, setReplyValue] = React.useState('');
   const [postMenuAnchor, setPostMenuAnchor] = React.useState<null | HTMLElement>(null);
+  const [saved, setSaved] = React.useState<boolean>(post.saved || false); // Add this state
+  const [editing, setEditing] = React.useState(false);
+  const [editTitle, setEditTitle] = React.useState(post.title);
+  const [editDescription, setEditDescription] = React.useState(post.description);
 
   // Get current user handle from localStorage
   const user = localStorage.getItem('user');
@@ -132,6 +136,23 @@ const PostDetails: React.FC = () => {
   };
   const handlePostMenuClose = () => {
     setPostMenuAnchor(null);
+  };
+
+  const handleSaveToggle = async () => {
+    if (!currentUserHandle) return;
+    if (saved) {
+      await unsavePost(post.id, currentUserHandle);
+      setSaved(false);
+    } else {
+      await savePost(post.id, currentUserHandle);
+      setSaved(true);
+    }
+  };
+
+  const handleEditPost = async () => {
+    await updatePost(post.id, { title: editTitle, description: editDescription });
+    setEditing(false);
+    // Optionally, refresh post data here
   };
 
   if (!post) {
@@ -191,14 +212,22 @@ const PostDetails: React.FC = () => {
                 open={Boolean(postMenuAnchor)}
                 onClose={handlePostMenuClose}
               >
-                <MenuItem onClick={() => { /* Save logic here */ handlePostMenuClose(); }}>
-                  <SaveIcon fontSize="small" sx={{ mr: 1 }} /> Save
+                <MenuItem onClick={() => { handleSaveToggle(); handlePostMenuClose(); }}>
+                  <SaveIcon fontSize="small" sx={{ mr: 1 }} />
+                  {saved ? 'Unsave' : 'Save'}
                 </MenuItem>
                 <MenuItem onClick={() => { /* Flag logic here */ handlePostMenuClose(); }}>
                   <FlagIcon fontSize="small" sx={{ mr: 1 }} /> Flag
                 </MenuItem>
                 {currentUserHandle === post.userHandle && (
-                  <MenuItem onClick={() => { /* Edit logic here */ handlePostMenuClose(); }}>
+                  <MenuItem
+                    onClick={() => {
+                      handlePostMenuClose();
+                      navigate(`/lounges/${post.institutionId || post.loungeId || ''}/new-post`, {
+                        state: { post }
+                      });
+                    }}
+                  >
                     <EditIcon fontSize="small" sx={{ mr: 1 }} /> Edit
                   </MenuItem>
                 )}
@@ -209,101 +238,130 @@ const PostDetails: React.FC = () => {
               {post.institution} &bull; {post.timeAgo}
             </Typography>
           </Box>
-          <Typography variant="h4" sx={{ mb: 2, fontWeight: 700 }}>
-            {post.title}
-          </Typography>
-          {post.tags && post.tags.length > 0 && (
-            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-              {post.tags.map((tag: string) => (
-                <Chip key={tag} label={tag} size="small" sx={{ bgcolor: '#f3f6f9', fontWeight: 500 }} />
-              ))}
+          {editing ? (
+            <Box sx={{ mb: 2 }}>
+              <TextField
+                fullWidth
+                value={editTitle}
+                onChange={e => setEditTitle(e.target.value)}
+                label="Title"
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                multiline
+                minRows={3}
+                value={editDescription}
+                onChange={e => setEditDescription(e.target.value)}
+                label="Description"
+                sx={{ mb: 2 }}
+              />
+              <Button variant="contained" onClick={handleEditPost} sx={{ mr: 1 }}>
+                Save
+              </Button>
+              <Button variant="text" onClick={() => setEditing(false)}>
+                Cancel
+              </Button>
             </Box>
-          )}
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            {post.description}
-          </Typography>
-          <Box display="flex" gap={2} alignItems="center" sx={{ mb: 2 }}>
-            <Tooltip title="Like">
-              <IconButton size="small" color={post.liked ? 'primary' : 'default'}>
-                {post.liked ? (
-                  <ThumbUpAltIcon fontSize="small" />
-                ) : (
-                  <ThumbUpAltOutlinedIcon fontSize="small" />
-                )}
-              </IconButton>
-            </Tooltip>
-            <Typography variant="caption">{post.likes}</Typography>
-            <Tooltip title="Dislike">
-              <IconButton size="small" color={post.disliked ? 'error' : 'default'}>
-                {post.disliked ? (
-                  <ThumbDownAltIcon fontSize="small" />
-                ) : (
-                  <ThumbDownAltOutlinedIcon fontSize="small" />
-                )}
-              </IconButton>
-            </Tooltip>
-            <Typography variant="caption">{post.dislikes}</Typography>
-            <Tooltip title="Comment">
-              <IconButton
-                size="small"
-                color="primary"
-                onClick={() => setShowComments((prev) => !prev)}
-              >
-                <ChatBubbleOutlineOutlinedIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <Typography variant="caption">{post.comments}</Typography>
-            <Tooltip title="Views">
-              <IconButton size="small" color="primary">
-                <VisibilityOutlinedIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <Typography variant="caption">{post.views}</Typography>
-          </Box>
-          {/* Comments Section or Loader */}
-          {showComments && (
-            loading ? (
-              <Box display="flex" justifyContent="center" alignItems="center" sx={{ minHeight: 120, mb: 8 }}>
-                <CircularProgress />
-              </Box>
-            ) : (
-              <>
-                <Box display="flex" gap={1} mb={2} alignItems="flex-end">
-                  <TextField
-                    fullWidth
-                    size="small"
-                    placeholder="Add a comment..."
-                    value={newComment}
-                    onChange={e => setNewComment(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleAddComment();
-                      }
-                    }}
-                  />
-                  <Tooltip title="Send">
-                    <IconButton onClick={handleAddComment} color="primary">
-                      <SendIcon />
-                    </IconButton>
-                  </Tooltip>
+          ) : (
+            <>
+              <Typography variant="h4" sx={{ mb: 2, fontWeight: 700 }}>
+                {post.title}
+              </Typography>
+              {post.tags && post.tags.length > 0 && (
+                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                  {post.tags.map((tag: string) => (
+                    <Chip key={tag} label={tag} size="small" sx={{ bgcolor: '#f3f6f9', fontWeight: 500 }} />
+                  ))}
                 </Box>
-                <NestedComments
-                  comments={comments}
-                  onAddReply={handleAddReply}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onLike={handleLike}
-                  onDislike={handleDislike}
-                  onView={handleView}
-                  currentUserHandle={currentUserHandle}
-                  replyToId={replyToId}
-                  replyValue={replyValue}
-                  setReplyValue={setReplyValue}
-                  onReplyCancel={handleReplyCancel}
-                />
-              </>
-            )
+              )}
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                {post.description}
+              </Typography>
+              <Box display="flex" gap={2} alignItems="center" sx={{ mb: 2 }}>
+                <Tooltip title="Like">
+                  <IconButton size="small" color={post.liked ? 'primary' : 'default'}>
+                    {post.liked ? (
+                      <ThumbUpAltIcon fontSize="small" />
+                    ) : (
+                      <ThumbUpAltOutlinedIcon fontSize="small" />
+                    )}
+                  </IconButton>
+                </Tooltip>
+                <Typography variant="caption">{post.likes}</Typography>
+                <Tooltip title="Dislike">
+                  <IconButton size="small" color={post.disliked ? 'error' : 'default'}>
+                    {post.disliked ? (
+                      <ThumbDownAltIcon fontSize="small" />
+                    ) : (
+                      <ThumbDownAltOutlinedIcon fontSize="small" />
+                    )}
+                  </IconButton>
+                </Tooltip>
+                <Typography variant="caption">{post.dislikes}</Typography>
+                <Tooltip title="Comment">
+                  <IconButton
+                    size="small"
+                    color="primary"
+                    onClick={() => setShowComments((prev) => !prev)}
+                  >
+                    <ChatBubbleOutlineOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Typography variant="caption">{post.comments}</Typography>
+                <Tooltip title="Views">
+                  <IconButton size="small" color="primary">
+                    <VisibilityOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Typography variant="caption">{post.views}</Typography>
+              </Box>
+              {/* Comments Section or Loader */}
+              {showComments && (
+                loading ? (
+                  <Box display="flex" justifyContent="center" alignItems="center" sx={{ minHeight: 120, mb: 8 }}>
+                    <CircularProgress />
+                  </Box>
+                ) : (
+                  <>
+                    <Box display="flex" gap={1} mb={2} alignItems="flex-end">
+                      <TextField
+                        fullWidth
+                        size="small"
+                        placeholder="Add a comment..."
+                        value={newComment}
+                        onChange={e => setNewComment(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleAddComment();
+                          }
+                        }}
+                      />
+                      <Tooltip title="Send">
+                        <IconButton onClick={handleAddComment} color="primary">
+                          <SendIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    <NestedComments
+                      comments={comments}
+                      onAddReply={handleAddReply}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      onLike={handleLike}
+                      onDislike={handleDislike}
+                      onView={handleView}
+                      currentUserHandle={currentUserHandle}
+                      replyToId={replyToId}
+                      replyValue={replyValue}
+                      setReplyValue={setReplyValue}
+                      onReplyCancel={handleReplyCancel}
+                    />
+                  </>
+                )
+              )}
+            </>
           )}
         </Box>
       </Card>
