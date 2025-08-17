@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Box, Button,Typography, IconButton, Tooltip,Card, Container, CircularProgress, TextField } from '@mui/material';
+import { Box, Button,Typography, IconButton, Tooltip,Card, Container, CircularProgress, TextField, Menu, MenuItem } from '@mui/material';
 import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import PersonIcon from '@mui/icons-material/Person';
@@ -15,6 +15,10 @@ import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutline
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import NestedComments, { NestedComment } from './NestedComments';
 import SendIcon from '@mui/icons-material/Send';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import SaveIcon from '@mui/icons-material/BookmarkBorder';
+import FlagIcon from '@mui/icons-material/FlagOutlined';
+import EditIcon from '@mui/icons-material/Edit';
 
 export interface Post {
   id: number;
@@ -74,6 +78,7 @@ const PostDetails: React.FC = () => {
   const [newComment, setNewComment] = React.useState('');
   const [replyToId, setReplyToId] = React.useState<number | null>(null);
   const [replyValue, setReplyValue] = React.useState('');
+  const [postMenuAnchor, setPostMenuAnchor] = React.useState<null | HTMLElement>(null);
 
   // Get current user handle from localStorage
   const user = localStorage.getItem('user');
@@ -122,6 +127,13 @@ const PostDetails: React.FC = () => {
     setReplyValue('');
   };
 
+  const handlePostMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setPostMenuAnchor(event.currentTarget);
+  };
+  const handlePostMenuClose = () => {
+    setPostMenuAnchor(null);
+  };
+
   if (!post) {
     return <Typography variant="h6">Post not found</Typography>;
   }
@@ -160,10 +172,41 @@ const PostDetails: React.FC = () => {
         </Typography>
         <Box className="screen-transition-enter" sx={{ position: 'relative', overflow: 'hidden' }}>
           {/* Content Section */}
-          <Box display="flex" alignItems="center" gap={1} sx={{ mb: 4 }}>
-            <PersonIcon fontSize="small" color="action" />
-            <Typography variant="subtitle2">
-              {post.userHandle} ({post.institution})
+          <Box sx={{ mb: 1 }}>
+            {/* Row 1: Handle + 3 dots */}
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Box display="flex" alignItems="center">
+                <PersonIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+                <Typography variant="subtitle2" fontWeight={700}>
+                  @{post.userHandle}
+                </Typography>
+              </Box>
+              <Tooltip title="More">
+                <IconButton size="small" onClick={handlePostMenuOpen}>
+                  <MoreVertIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                anchorEl={postMenuAnchor}
+                open={Boolean(postMenuAnchor)}
+                onClose={handlePostMenuClose}
+              >
+                <MenuItem onClick={() => { /* Save logic here */ handlePostMenuClose(); }}>
+                  <SaveIcon fontSize="small" sx={{ mr: 1 }} /> Save
+                </MenuItem>
+                <MenuItem onClick={() => { /* Flag logic here */ handlePostMenuClose(); }}>
+                  <FlagIcon fontSize="small" sx={{ mr: 1 }} /> Flag
+                </MenuItem>
+                {currentUserHandle === post.userHandle && (
+                  <MenuItem onClick={() => { /* Edit logic here */ handlePostMenuClose(); }}>
+                    <EditIcon fontSize="small" sx={{ mr: 1 }} /> Edit
+                  </MenuItem>
+                )}
+              </Menu>
+            </Box>
+            {/* Row 2: College name & time */}
+            <Typography variant="caption" color="text.secondary" sx={{ ml: 3.5 }}>
+              {post.institution} &bull; {post.timeAgo}
             </Typography>
           </Box>
           <Typography variant="h4" sx={{ mb: 2, fontWeight: 700 }}>
