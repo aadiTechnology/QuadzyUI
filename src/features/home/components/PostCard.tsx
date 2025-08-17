@@ -104,19 +104,7 @@ const PostCard: React.FC<PostCardProps> = ({
 
   return (
     <Box
-      sx={{
-        background: '#fff',
-        borderRadius: 3,
-        boxShadow: '0 2px 12px 0 rgba(60,72,120,0.06)',
-        p: 2,
-        mb: 2,
-        mt: 2,
-        transition: 'box-shadow 0.2s',
-        '&:hover': {
-          boxShadow: '0 4px 24px 0 rgba(60,72,120,0.12)',
-        },
-      }}
-    >
+      sx={{ background: '#fff', borderRadius: 3, boxShadow: '0 2px 12px 0 rgba(60,72,120,0.06)', p: 2, mb: 2, mt: 2, transition: 'box-shadow 0.2s', '&:hover': { boxShadow: '0 4px 24px 0 rgba(60,72,120,0.12)', }, }} >
       <Box display="flex" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
         {/* Left: Avatar and user info */}
         <Box display="flex" alignItems="flex-start" gap={1} flex={1}>
@@ -170,17 +158,7 @@ const PostCard: React.FC<PostCardProps> = ({
       {/* Description */}
       <Typography
         variant="body2"
-        sx={{
-          mb: 1,
-          color: 'text.secondary',
-          cursor: 'pointer',
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          minHeight: '3em',
-        }}
+        sx={{ mb: 1, color: 'text.secondary', cursor: 'pointer', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', minHeight: '3em', }}
         ref={descRef}
         onClick={handleNavigate}
       >

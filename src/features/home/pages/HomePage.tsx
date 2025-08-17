@@ -225,16 +225,19 @@ const HomePage: React.FC = () => {
 
   const handleCreatePost = async (data: any) => {
     const userHandle = localStorage.getItem('userHandle');
-    await createPost(myCollegeId!, { ...data, userHandle }); // add userHandle to post data
+    // Create the post and get the new post object from the response
+    const res = await createPost(myCollegeId!, { ...data, userHandle });
     setOpenDialog(false);
-    // Refresh posts
-    const res = await fetchPosts(myCollegeId!);
-    setPosts(
-      res.data.map((p: any) => ({
-        ...p,
-        id: p.id ?? p.postId,
-      }))
-    );
+
+    // Option 1: Prepend the new post to the current posts array
+    setPosts(prev => [
+      {
+        ...res.data,
+        id: res.data.id ?? res.data.postId,
+        institution: res.data.collegeName, // for consistency
+      },
+      ...prev,
+    ]);
   };
 
   const handleOpenComments = async (post: any) => {
@@ -306,9 +309,7 @@ const myHandle = userObj.handle || localStorage.getItem('userHandle') || 'userHa
   return (
     <Box sx={{ position: 'relative',  minHeight: '100vh',  pb: { xs: 10, md: 10 }, }} >
         <Card sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 3 },  boxShadow: '0 4px 24px 0 rgba(60,72,120,0.10)', background: '#fff',position: 'sticky',
-       top: 0, 
-    height: '80vh', 
-    overflowY: 'auto',  }} >
+       top: 0, height: '150vh', overflowY: 'auto',  }} >
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Tabs value={tabIndex} onChange={(_, v) => setTabIndex(v)} variant="fullWidth" >
           <Tab

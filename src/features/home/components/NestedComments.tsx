@@ -8,11 +8,9 @@ import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutline
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import ReplyOutlinedIcon from '@mui/icons-material/ReplyOutlined';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import SaveIcon from '@mui/icons-material/BookmarkBorder';
 import FlagIcon from '@mui/icons-material/FlagOutlined';
 
 export interface NestedComment {
@@ -245,15 +243,6 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem
-          onClick={() => {
-            // TODO: Add your save logic here
-            handleMenuClose();
-          }}
-        >
-          <SaveIcon fontSize="small" sx={{ mr: 1 }} />
-          Save
-        </MenuItem>
         <MenuItem
           onClick={() => {
             // TODO: Add your flag logic here
