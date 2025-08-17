@@ -12,6 +12,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import SaveIcon from '@mui/icons-material/BookmarkBorder';
+import FlagIcon from '@mui/icons-material/FlagOutlined';
 
 export interface NestedComment {
   commentId: number;
@@ -93,7 +95,7 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
           <Grid item key={comment.commentId}>
             <Box sx={{ border: '1px solid #eee', borderRadius: 2, p: 2, mb: 1 }}>
               {/* Row 1: Handle + 3 dots */}
-              <Box display="flex" alignItems="center" mb={0.5}>
+              <Box display="flex" alignItems="center" justifyContent="space-between" mb={0.5}>
                 <Typography variant="subtitle2" fontWeight={700} sx={{ mr: 0.5 }}>
                   @{comment.userHandle}
                 </Typography>
@@ -245,14 +247,27 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
       >
         <MenuItem
           onClick={() => {
-            if (comments.concat(...Object.values(repliesMap)).find(c => c.commentId === menuCommentId && isEditable(c))) {
-              onEdit(menuCommentId!);
-            }
+            // TODO: Add your save logic here
             handleMenuClose();
           }}
-          disabled={
-            !comments.concat(...Object.values(repliesMap)).find(c => c.commentId === menuCommentId && isEditable(c))
-          }
+        >
+          <SaveIcon fontSize="small" sx={{ mr: 1 }} />
+          Save
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            // TODO: Add your flag logic here
+            handleMenuClose();
+          }}
+        >
+          <FlagIcon fontSize="small" sx={{ mr: 1 }} />
+          Flag
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            // TODO: Add your edit logic here
+            handleMenuClose();
+          }}
         >
           <EditIcon fontSize="small" sx={{ mr: 1 }} />
           Edit
