@@ -37,10 +37,10 @@ const setUserSelection = (pollId: string, selected: number[]) => {
 
 const PollCard: React.FC<PollCardProps> = ({ poll }) => {
   const pollId = poll.createdAt || poll.question + (poll.duration_type || '');
-  const [selected, setSelected] = useState<number[]>(getUserSelection(pollId));
   const [showResults, setShowResults] = useState(false);
   const [votes, setVotes] = useState<number[]>(getPollVotes(pollId, poll.options.length));
-  const maxSelect = poll.allow_multiple ? (poll.allow_multiple_count || 1) : 1;
+  const maxSelect = poll.allow_multiple ? poll.options.length : 1;
+  const [selected, setSelected] = useState<number[]>(getUserSelection(pollId));
 
   useEffect(() => {
     setVotes(getPollVotes(pollId, poll.options.length));
@@ -49,15 +49,17 @@ const PollCard: React.FC<PollCardProps> = ({ poll }) => {
 
   // Handle selection and vote change
   const handleSelect = (idx: number) => {
-    let newSelected: number[];
-    if (selected.includes(idx)) {
-      newSelected = selected.filter(i => i !== idx);
-    } else if (selected.length < maxSelect) {
-      newSelected = [...selected, idx];
+    if (poll.allow_multiple) {
+      // Toggle selection for multiple answers
+      setSelected(prev =>
+        prev.includes(idx)
+          ? prev.filter(i => i !== idx)
+          : [...prev, idx]
+      );
     } else {
-      newSelected = selected;
+      // Only one selection allowed
+      setSelected([idx]);
     }
-    setSelected(newSelected);
   };
 
   // Voting logic: only one vote per user, allow changing vote
