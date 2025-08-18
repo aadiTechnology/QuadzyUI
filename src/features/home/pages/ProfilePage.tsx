@@ -137,6 +137,7 @@ const ProfilePage: React.FC = () => {
             <ProfilePostList
               title=""
               posts={profile.savedPosts}
+              onClickPost={handlePostClick} // <-- Add this line
               noCard
             />
           )}

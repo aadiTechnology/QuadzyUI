@@ -180,6 +180,11 @@ const PostDetails: React.FC = () => {
     setComments(res.data);
   };
 
+  // Prefer userHandle, fallback to handle
+  const handle = post.userHandle || post.handle || '';
+  const college = post.institution || post.collegeName || '';
+  const timeAgo = post.timeAgo || '';
+
   return (
     <Box sx={{ position: 'relative', minHeight: '100vh', pb: { xs: 10, md: 10 } }}>
       <Card sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 3 }, boxShadow: '0 4px 24px 0 rgba(60,72,120,0.10)', background: '#fff', position: 'sticky', top: 0, height: '80vh', overflowY: 'auto' }}>
@@ -199,7 +204,7 @@ const PostDetails: React.FC = () => {
               <Box display="flex" alignItems="center">
                 <PersonIcon fontSize="small" color="action" sx={{ mr: 1 }} />
                 <Typography variant="subtitle2" fontWeight={700}>
-                  @{post.userHandle}
+                  @{handle}
                 </Typography>
               </Box>
               <Tooltip title="More">
@@ -235,7 +240,7 @@ const PostDetails: React.FC = () => {
             </Box>
             {/* Row 2: College name & time */}
             <Typography variant="caption" color="text.secondary" sx={{ ml: 3.5 }}>
-              {post.institution} &bull; {post.timeAgo}
+              {college} &bull; {timeAgo}
             </Typography>
           </Box>
           {editing ? (
