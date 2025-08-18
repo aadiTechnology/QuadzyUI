@@ -5,7 +5,6 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { TextField as MuiTextField } from '@mui/material';
 
 interface PollFormProps {
   onSubmit: (data: any) => Promise<void>;
@@ -24,7 +23,6 @@ export default function PollForm({ onSubmit, submitting, error }: PollFormProps)
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState(['', '']);
   const [allowMultiple, setAllowMultiple] = useState(false);
-  const [allowMultipleCount, setAllowMultipleCount] = useState(1);
   const [durationType, setDurationType] = useState('1d');
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
@@ -61,15 +59,6 @@ export default function PollForm({ onSubmit, submitting, error }: PollFormProps)
 
   const handleAllowMultipleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAllowMultiple(e.target.checked);
-    if (!e.target.checked) setAllowMultipleCount(1);
-  };
-
-  const handleAllowMultipleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = parseInt(e.target.value, 10);
-    if (isNaN(val) || val < 1) val = 1;
-    if (val > options.filter(opt => opt.trim()).length) val = options.filter(opt => opt.trim()).length;
-    if (val > 5) val = 5;
-    setAllowMultipleCount(val);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -83,7 +72,6 @@ export default function PollForm({ onSubmit, submitting, error }: PollFormProps)
       question: question.trim(),
       options: options.filter(opt => opt.trim()),
       allow_multiple: allowMultiple,
-      allow_multiple_count: allowMultiple ? allowMultipleCount : 1,
       duration_type: durationType,
     };
     if (durationType === 'custom') {
@@ -214,17 +202,6 @@ export default function PollForm({ onSubmit, submitting, error }: PollFormProps)
         label="Allow Multiple Answers"
         sx={{ mb: 2, fontWeight: 500 }}
       />
-      {/* {allowMultiple && (
-        <MuiTextField
-          label="How many options can be selected?"
-          type="number"
-          size="small"
-          value={allowMultipleCount}
-          onChange={handleAllowMultipleCountChange}
-          inputProps={{ min: 1, max: options.filter(opt => opt.trim()).length || 5 }}
-          sx={{ mb: 2, width: 220 }}
-        />
-      )} */}
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
