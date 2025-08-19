@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, IconButton, Typography, Menu, MenuItem, Tooltip } from '@mui/material';
+import { Box, IconButton, Typography, Menu, MenuItem, Tooltip, Chip } from '@mui/material';
 import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import ThumbDownAltOutlinedIcon from '@mui/icons-material/ThumbDownAltOutlined';
@@ -30,6 +30,7 @@ export interface Post {
   liked: boolean;
   disliked?: boolean;
   saved?: boolean;
+  tags?: string[]; // <-- Add this line
 }
 
 interface PostCardProps {
@@ -155,6 +156,14 @@ const PostCard: React.FC<PostCardProps> = ({
       >
         {post.title}
       </Typography>
+      {/* Tags */}
+      {post.tags && post.tags.length > 0 && (
+        <Box sx={{ display: 'flex', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+          {post.tags.map((tag: string) => (
+            <Chip key={tag} label={tag} size="small" sx={{ bgcolor: '#f3f6f9', fontWeight: 500 }} />
+          ))}
+        </Box>
+      )}
       {/* Description */}
       <Typography
         variant="body2"
@@ -209,7 +218,11 @@ const PostCard: React.FC<PostCardProps> = ({
         </Tooltip>
         <Typography variant="caption">{post.dislikes}</Typography>
         <Tooltip title="Comment">
-          <IconButton onClick={() => onComment && onComment(post.id)} size="small" color="primary">
+          <IconButton
+            onClick={() => navigate(`/post/${post.id}`, { state: { post, openComments: true } })}
+            size="small"
+            color="primary"
+          >
             <ChatBubbleOutlineOutlinedIcon fontSize="small" />
           </IconButton>
         </Tooltip>

@@ -239,11 +239,6 @@ const NewPostPage: React.FC = () => {
           error={!!errors.description}
           helperText={errors.description}
         />
-
-        {/* <Typography variant="subtitle2" sx={{ mb: 1 }}>
-          Attachments
-        </Typography> */}
-        
         {/* Horizontal Icon-only Attachments */}
         <Box sx={{ display: 'flex', gap: 3, mb: 3, justifyContent: 'left' }}>
           <Tooltip title="Audio" placement="top">

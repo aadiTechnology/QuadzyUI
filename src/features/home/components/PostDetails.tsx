@@ -98,6 +98,18 @@ const PostDetails: React.FC = () => {
     }
   }, [post, showComments]);
 
+  // Close the post menu when the location changes
+  useEffect(() => {
+    setPostMenuAnchor(null);
+  }, [location]);
+
+  // Open comments section if the location state indicates so
+  useEffect(() => {
+    if (location.state?.openComments) {
+      setShowComments(true);
+    }
+  }, [location.state]);
+
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
     await addComment(post.id, newComment, currentUserHandle);
@@ -276,7 +288,7 @@ const PostDetails: React.FC = () => {
                 {post.title}
               </Typography>
               {post.tags && post.tags.length > 0 && (
-                <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                <Box sx={{ display: 'flex', gap: 1, mb: 1,flexWrap: 'wrap'  }}>
                   {post.tags.map((tag: string) => (
                     <Chip key={tag} label={tag} size="small" sx={{ bgcolor: '#f3f6f9', fontWeight: 500 }} />
                   ))}

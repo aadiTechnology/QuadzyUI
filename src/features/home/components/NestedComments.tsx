@@ -183,7 +183,7 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
               )}
               {/* Replies */}
               {repliesMap[comment.commentId] && (
-                <Box sx={{ mt: 2, pl: 3, borderLeft: '2px solid #e0e0e0' }}>
+                <Box sx={{ mt: 2, pl: 3 }}>
                   {repliesMap[comment.commentId].map(reply => (
                     <Box key={reply.commentId} sx={{ mb: 2, background: '#f0f6ff', borderRadius: 2, p: 1 }}>
                       {/* Row 1: Handle + 3 dots */}
