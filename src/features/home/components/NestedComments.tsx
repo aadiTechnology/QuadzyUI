@@ -12,6 +12,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import FlagIcon from '@mui/icons-material/FlagOutlined';
+import SendIcon from '@mui/icons-material/Send';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 export interface NestedComment {
   commentId: number;
@@ -152,7 +154,7 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
               </Box>
               {/* Reply input */}
               {replyToId === comment.commentId && (
-                <Box mt={1} display="flex" gap={1}>
+                <Box display="flex" alignItems="flex-end">
                   <TextField
                     size="small"
                     value={replyValue}
@@ -160,17 +162,23 @@ const NestedComments: React.FC<NestedCommentsProps> = ({
                     placeholder="Write a reply..."
                     fullWidth
                   />
-                  <Button
-                    variant="contained"
-                    size="small"
+                  <IconButton
+                    color="primary"
                     onClick={() => onAddReply(comment.commentId, replyValue)}
                     disabled={!replyValue.trim()}
+                    aria-label="Reply"
+                    size="small"
                   >
-                    Reply
-                  </Button>
-                  <Button variant="text" size="small" onClick={onReplyCancel}>
-                    Cancel
-                  </Button>
+                    <SendIcon />
+                  </IconButton>
+                  <IconButton
+                    color="error"
+                    onClick={onReplyCancel}
+                    aria-label="Cancel"
+                    size="small"
+                  >
+                    <CancelIcon />
+                  </IconButton>
                 </Box>
               )}
               {/* Replies */}
