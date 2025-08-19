@@ -3,7 +3,7 @@ import { createTheme } from '@mui/material/styles';
 export const lightTheme = createTheme({
   palette: { mode: 'light', primary: { main: '#1976d2' } },
   typography: {
-    fontFamily: 'Roboto, Arial, sans-serif',
+    fontFamily: 'Carlito, Arial, Calibri, Roboto, sans-serif',
     h1: { color: '#222', fontWeight: 700 },
     h2: { color: '#222', fontWeight: 700 },
     h3: { color: '#222', fontWeight: 700 },

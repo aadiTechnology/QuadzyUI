@@ -198,14 +198,20 @@ const PostDetails: React.FC = () => {
         </Typography>
         <Box className="screen-transition-enter" sx={{ position: 'relative', overflow: 'hidden' }}>
           {/* Content Section */}
-          <Box sx={{ mb: 1 }}>
-            {/* Row 1: Handle + 3 dots */}
-            <Box display="flex" alignItems="center" justifyContent="space-between">
-              <Box display="flex" alignItems="center">
-                <PersonIcon fontSize="small" color="action" sx={{ mr: 1 }} />
+            <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+              <Box display="flex" alignItems="flex-start" gap={1} >
+                <PersonIcon fontSize="small" color="action" sx={{ mt: 0.5 }} />
                 <Typography variant="subtitle2" fontWeight={700}>
                   @{handle}
                 </Typography>
+                <Box display="flex" alignItems="center" gap={1} sx={{ mt: 0.2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {college}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    • {timeAgo}
+                  </Typography>
+                </Box>
               </Box>
               <Tooltip title="More">
                 <IconButton size="small" onClick={handlePostMenuOpen}>
@@ -238,11 +244,7 @@ const PostDetails: React.FC = () => {
                 )}
               </Menu>
             </Box>
-            {/* Row 2: College name & time */}
-            <Typography variant="caption" color="text.secondary" sx={{ ml: 3.5 }}>
-              {college} &bull; {timeAgo}
-            </Typography>
-          </Box>
+            
           {editing ? (
             <Box sx={{ mb: 2 }}>
               <TextField
@@ -270,20 +272,20 @@ const PostDetails: React.FC = () => {
             </Box>
           ) : (
             <>
-              <Typography variant="h4" sx={{ mb: 2, fontWeight: 700 }}>
+              <Typography  variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
                 {post.title}
               </Typography>
               {post.tags && post.tags.length > 0 && (
-                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
                   {post.tags.map((tag: string) => (
                     <Chip key={tag} label={tag} size="small" sx={{ bgcolor: '#f3f6f9', fontWeight: 500 }} />
                   ))}
                 </Box>
               )}
-              <Typography variant="body1" sx={{ mb: 2 }}>
+              <Typography variant="body1" sx={{ mb: 1, color: 'text.secondary', display: '-webkit-box', overflow: 'hidden', textOverflow: 'ellipsis', minHeight: '3em', }}>
                 {post.description}
               </Typography>
-              <Box display="flex" gap={2} alignItems="center" sx={{ mb: 2 }}>
+              <Box display="flex" gap={2} alignItems="center" sx={{ mb: 1 }}>
                 <Tooltip title="Like">
                   <IconButton size="small" color={post.liked ? 'primary' : 'default'}>
                     {post.liked ? (

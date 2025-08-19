@@ -149,7 +149,7 @@ const PostCard: React.FC<PostCardProps> = ({
       </Box>
       {/* Heading */}
       <Typography
-        variant="h6"
+      variant="subtitle2"
         sx={{ mb: 0.5, fontWeight: 700, cursor: 'pointer' }}
         onClick={handleNavigate}
       >
