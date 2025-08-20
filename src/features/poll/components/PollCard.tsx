@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Card, Checkbox, Button, LinearProgress } from '@mui/material';
+import { Box, Typography, Checkbox, Button, LinearProgress } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 
 interface PollCardProps {
@@ -35,6 +35,22 @@ const setUserSelection = (pollId: string, selected: number[]) => {
   localStorage.setItem(`pollSelection_${pollId}`, JSON.stringify(selected));
 };
 
+function getTimeAgo(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return `${seconds} seconds ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+  const weeks = Math.floor(days / 7);
+  return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+}
+
 const PollCard: React.FC<PollCardProps> = ({ poll }) => {
   const pollId = poll.createdAt || poll.question + (poll.duration_type || '');
   const [showResults, setShowResults] = useState(false);
@@ -50,14 +66,12 @@ const PollCard: React.FC<PollCardProps> = ({ poll }) => {
   // Handle selection and vote change
   const handleSelect = (idx: number) => {
     if (poll.allow_multiple) {
-      // Toggle selection for multiple answers
       setSelected(prev =>
         prev.includes(idx)
           ? prev.filter(i => i !== idx)
           : [...prev, idx]
       );
     } else {
-      // Only one selection allowed
       setSelected([idx]);
     }
   };
@@ -83,30 +97,53 @@ const PollCard: React.FC<PollCardProps> = ({ poll }) => {
     setShowResults(true);
   };
 
-  const totalVotes = votes.reduce((sum, v) => sum + v, 0);
+  // Allow user to change vote
+  const handleChangeVote = () => {
+    setShowResults(false);
+  };
+
+  const totalVotes = votes.reduce((a, b) => a + b, 0);
 
   return (
-    <Card sx={{ p: 2, mb: 2, bgcolor: '#fcfdfcff', borderRadius: 3 }}>
-      <Box display="flex" alignItems="flex-start" gap={1} sx={{ mb: 2 }}>
-        <PersonIcon fontSize="small" color="action" />
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <Typography variant="subtitle1" fontWeight={600}>
+    <Box
+      sx={{
+        background: '#fff',
+        borderRadius: 3,
+        boxShadow: '0 2px 12px 0 rgba(60,72,120,0.06)',
+        p: 2,
+        mb: 2,
+        mt: 2,
+        transition: 'box-shadow 0.2s',
+        '&:hover': { boxShadow: '0 4px 24px 0 rgba(60,72,120,0.12)' },
+      }}
+    >
+    
+      <Box display="flex" alignItems="flex-start" gap={1} flex={1} sx={{ mb: 0.5 }}>
+        <PersonIcon fontSize="medium" color="action" sx={{ mt: 0.5 }} />
+        <Box>
+          <Typography variant="subtitle2" fontWeight={700} sx={{ lineHeight: 1.4 }}>
             {poll.handle || "userHandle"}
           </Typography>
-          <Typography variant="subtitle2" color="text.secondary">
-            {poll.collegeName || ""}
-          </Typography>
+          <Box display="flex" alignItems="center" gap={1}>
+            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.1 }}>
+              {poll.collegeName || ""}
+            </Typography>
+          </Box>
         </Box>
       </Box>
 
       <Typography
-        variant="subtitle1"
+        variant="subtitle2"
         fontWeight={700}
-        sx={{ mb: 1, fontSize: 18 }}
+        sx={{ mb: 0.5, fontSize: 16, gap: 1, flex: 1, lineHeight: 1.2 }}
       >
         {poll.question}
       </Typography>
-      <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ mb: 0.5, display: 'block', gap: 1, flex: 1, lineHeight: 1.2 }}
+      >
         {poll.allow_multiple
           ? `Select up to ${maxSelect} option${maxSelect > 1 ? 's' : ''}`
           : 'Select one'}
@@ -115,30 +152,38 @@ const PollCard: React.FC<PollCardProps> = ({ poll }) => {
       {!showResults ? (
         <>
           {poll.options.map((opt, idx) => (
-            <Box key={idx} display="flex" alignItems="center" sx={{ mb: 1 }}>
+            <Box key={idx} display="flex" alignItems="center" sx={{ mb: 0.5, gap: 1, flex: 1 }}>
               <Checkbox
                 checked={selected.includes(idx)}
                 onChange={() => handleSelect(idx)}
                 disabled={!selected.includes(idx) && selected.length >= maxSelect}
+                sx={{ p: 0.5 }}
               />
-              <Typography variant="body2" sx={{ flex: 1 }}>{opt}</Typography>
+              <Typography variant="body2" sx={{ flex: 1, lineHeight: 1.2 }}>{opt}</Typography>
             </Box>
           ))}
           <Button
             variant="text"
             color="primary"
-            sx={{ mt: 1, fontWeight: 600 }}
+            sx={{ mt: 0.5, fontWeight: 600, minHeight: 0, lineHeight: 1.2 }}
             onClick={handleVote}
             disabled={selected.length === 0}
           >
             View votes
           </Button>
+            {/* Poll time at top */}
+      <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mb: 0.5 }}>
+        <Typography variant="caption" color="text.secondary">
+          {poll.createdAt ? getTimeAgo(poll.createdAt) : ''}
+          {poll.duration_type ? ` • Active for ${poll.duration_type.replace('h', ' hour').replace('d', ' day').replace('w', ' week')}` : ''}
+        </Typography>
+      </Box>
         </>
       ) : (
         <>
           {poll.options.map((opt, idx) => (
-            <Box key={idx} display="flex" alignItems="center" sx={{ mb: 1 }}>
-              <Typography variant="body2" sx={{ flex: 1 }}>{opt}</Typography>
+            <Box key={idx} display="flex" alignItems="center" sx={{ mb: 0.5 }}>
+              <Typography variant="body2" sx={{ flex: 1, lineHeight: 1.2 }}>{opt}</Typography>
               <Typography variant="body2" sx={{ ml: 1 }}>{votes[idx]}</Typography>
               <LinearProgress
                 variant="determinate"
@@ -157,21 +202,15 @@ const PollCard: React.FC<PollCardProps> = ({ poll }) => {
           <Button
             variant="text"
             color="primary"
-            sx={{ mt: 1, fontWeight: 600 }}
-            onClick={() => setShowResults(false)}
+            sx={{ mt: 0.5, fontWeight: 600, minHeight: 0, lineHeight: 1.2 }}
+            onClick={handleChangeVote}
           >
-            Back to poll
+            Back to Poll
           </Button>
+          
         </>
       )}
-
-      {poll.createdAt && (
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-          {poll.createdAt ? new Date(poll.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-          {poll.duration_type ? ` • Active for ${poll.duration_type.replace('h', ' hour').replace('d', ' day').replace('w', ' week')}` : ''}
-        </Typography>
-      )}
-    </Card>
+    </Box>
   );
 };
 
