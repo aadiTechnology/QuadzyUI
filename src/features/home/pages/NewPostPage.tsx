@@ -27,9 +27,9 @@ const NewPostPage: React.FC = () => {
   const location = useLocation();
   const editingPost = location.state?.post;
 
-  const { collegeId, collegeName, isPrivate, tabIndex } = location.state || {};
+  const { collegeId, collegeName, tabIndex } = location.state || {};
 
-  console.log('NewPostPage location state:', { collegeId, collegeName, isPrivate, tabIndex });
+  console.log('NewPostPage location state:', { collegeId, collegeName, tabIndex });
   const [lounges, setLounges] = useState<any[]>([]);
   const [selectedLounge, setSelectedLounge] = useState<string>(loungeId || '');
   const [collegeNameState, setCollegeNameState] = useState(collegeName || '');
@@ -40,6 +40,7 @@ const NewPostPage: React.FC = () => {
   const [availableTags, setAvailableTags] = useState<string[]>(PREDEFINED_TAGS);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showDraftMessage, setShowDraftMessage] = useState(false);
+  const [isPrivate, setIsPrivate] = useState<boolean>(location.state?.isPrivate ?? false);
 
   useEffect(() => {
     fetchLounges().then(res => setLounges(res.data));
@@ -52,6 +53,7 @@ const NewPostPage: React.FC = () => {
       setTags(editingPost.tags || []);
       setCollegeNameState(editingPost.institution || editingPost.collegeName || '');
       setSelectedLounge(editingPost.loungeId?.toString() || '');
+      setIsPrivate(editingPost.isPrivate);
       // ...set other fields as needed
     }
   }, [editingPost]);
