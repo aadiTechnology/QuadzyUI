@@ -103,7 +103,8 @@ const ProfilePage: React.FC = () => {
         )
       );
       try {
-        await likePost(postId); // backend should toggle like/unlike
+        const userHandle = localStorage.getItem('userHandle') ?? '';
+        await likePost(postId, userHandle); // backend should toggle like/unlike
       } catch (e) {
         // Optionally revert UI if backend fails
       }
@@ -279,7 +280,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const handlePostClick = (post: any) => {
-    navigate(`/post/${post.postId || post.id}`, { state: { post } });
+    navigate(`/post/${post.postId || post.id}`, { state: { post, headerTitle: 'Your Post' } });
   };
 
   if (loading) {
