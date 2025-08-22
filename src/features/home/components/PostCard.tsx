@@ -35,6 +35,7 @@ export interface Post {
 
 interface PostCardProps {
   post: Post;
+  onClickPost?: (post: Post) => void;
   onLike?: (postId: number) => void;
   onDislike?: (postId: number) => void;
   onComment?: (postId: number) => void;
@@ -45,6 +46,7 @@ interface PostCardProps {
 
 const PostCard: React.FC<PostCardProps> = ({
   post,
+  onClickPost,
   onLike,
   onDislike,
   onComment,
@@ -75,20 +77,22 @@ const PostCard: React.FC<PostCardProps> = ({
     setAnchorEl(null);
   };
 
-  const handleSaveToggle = async () => {
-    setSaving(true);
+  const handleSaveToggle = async (postId: number, saved: boolean) => {
     const user = localStorage.getItem('user');
     const handle = user ? JSON.parse(user).handle : '';
     if (!handle) return;
-    if (post.saved) {
-      await unsavePost(post.id, handle);
-      onSaveToggle?.(post.id, false);
-    } else {
-      await savePost(post.id, handle);
-      onSaveToggle?.(post.id, true);
+    try {
+      if (saved) {
+        await savePost(postId, handle);
+      } else {
+        await unsavePost(postId, handle);
+      }
+      if (onSaveToggle) {
+        onSaveToggle(postId, saved);
+      }
+    } catch (e) {
+      // Optionally handle error
     }
-    setSaving(false);
-    handleMenuClose();
   };
 
   const handleNavigate = async () => {
@@ -129,7 +133,16 @@ const PostCard: React.FC<PostCardProps> = ({
           <MoreVertIcon />
         </IconButton>
         <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-          <MenuItem onClick={handleSaveToggle} disabled={saving}>
+          <MenuItem
+            onClick={async (e) => {
+              e.stopPropagation();
+              setSaving(true);
+              await handleSaveToggle(post.id, !post.saved);
+              setSaving(false);
+              handleMenuClose();
+            }}
+            disabled={saving}
+          >
             {post.saved ? (
               <>
                 <BookmarkIcon fontSize="small" sx={{ mr: 1 }} /> Unsave

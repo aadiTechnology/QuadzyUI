@@ -69,6 +69,7 @@ function nestComments(flatComments: Comment[]): Comment[] {
 
 const PostDetails: React.FC = () => {
   const location = useLocation();
+  const headerTitle = location.state?.headerTitle || 'View Post';
   const navigate = useNavigate();
   const post = location.state?.post;
 
@@ -206,7 +207,7 @@ const PostDetails: React.FC = () => {
           ←
         </Button>
         <Typography variant="h6" align="center" sx={{ mb: 2 }}>
-          View Post
+          {headerTitle}
         </Typography>
         <Box className="screen-transition-enter" sx={{ position: 'relative', overflow: 'hidden' }}>
           {/* Content Section */}

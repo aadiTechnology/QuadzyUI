@@ -99,7 +99,7 @@ const PollCard: React.FC<PollCardProps> = ({ poll }) => {
 
   // Allow user to change vote
   const handleChangeVote = () => {
-    setShowResults(false);
+    setShowResults(true);
   };
 
   const totalVotes = votes.reduce((a, b) => a + b, 0);
