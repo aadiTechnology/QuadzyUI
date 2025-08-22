@@ -194,7 +194,7 @@ const NewPostPage: React.FC = () => {
           sx={{ mb: 2 }}
           error={!!errors.title}
           helperText={errors.title}
-          />
+        />
         
         {/* Autocomplete Tags Field */}
         <Autocomplete

@@ -5,7 +5,8 @@ export const fetchPosts = (loungeId: number | null = null) => api.get(`/auth/lou
 export const createPost = (loungeId: number, data: any) =>
   api.post(`/auth/lounges/${loungeId}/posts`, data);
 
-export const likePost = (postId: number) => api.post(`/auth/posts/${postId}/like`);
+export const likePost = (postId: number, handle: string) =>
+  api.post(`/auth/posts/${postId}/like?handle=${handle}`);
 export const commentPost = (postId: number) => api.post(`/auth/posts/${postId}/comment`);
 export const viewPost = (postId: number) => api.post(`/auth/posts/${postId}/view`);
 

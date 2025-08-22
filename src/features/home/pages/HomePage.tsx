@@ -96,7 +96,8 @@ const HomePage: React.FC = () => {
       let filtered = res.data.map((p: any) => ({
         ...p,
         id: p.id ?? p.postId,
-        institution: p.collegeName, // <-- Map collegeName to institution
+        institution: p.collegeName,
+        liked: !!p.liked, // <-- ensure this is set
       }));
       if (tabIndex === 0) {
         // Show posts where loungeId === myCollegeId and isPrivate === true
@@ -135,9 +136,26 @@ const HomePage: React.FC = () => {
       )
     );
     try {
-      await likePost(postId); // backend should toggle like/unlike
+      // Pass user handle to backend
+      const user = localStorage.getItem('user');
+      const handle = user ? JSON.parse(user).handle : '';
+      await likePost(postId, handle); // Make sure your service supports handle
+      // Optionally, fetch the updated like count and liked state from backend for accuracy
+      // const res = await fetchPost(postId); // If you have a single post fetch
+      // setPosts(prev => prev.map(post => post.id === postId ? { ...post, likes: res.data.likes, liked: res.data.liked } : post));
     } catch (e) {
       // Optionally revert UI if backend fails
+      setPosts(prev =>
+        prev.map(post =>
+          post.id === postId
+            ? {
+                ...post,
+                liked: !post.liked,
+                likes: post.liked ? post.likes + 1 : post.likes - 1,
+              }
+            : post
+        )
+      );
     }
   };
    // Fetch posts and polls, then merge and sort
@@ -321,6 +339,8 @@ const myHandle = userObj.handle || localStorage.getItem('userHandle') || 'userHa
             onMouseDown={() => handleTabMouseDown(1)}
             onMouseUp={handleTabMouseUp}
             onMouseLeave={handleTabMouseUp}
+            onTouchStart={() => handleTabMouseDown(1)}   // <-- Add this
+            onTouchEnd={handleTabMouseUp}  
           />
           <Tab label="Pulse" />
         </Tabs>
@@ -373,7 +393,7 @@ const myHandle = userObj.handle || localStorage.getItem('userHandle') || 'userHa
         </Box>
       )}
       {loading ? (
-        <Box  display="flex" justifyContent="center" alignItems="center" minHeight="60vh" sx={{ mb: 10 }}  >
+        <Box  display="flex" justifyContent="center" alignItems="center" minHeight="60vh" sx={{ mb: 5 }}  >
           <CircularProgress />
         </Box>
       ) : (
