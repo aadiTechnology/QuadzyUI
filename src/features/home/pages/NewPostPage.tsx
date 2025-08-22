@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box, Button, Card, Chip, Container, IconButton, InputAdornment, MenuItem, OutlinedInput,
-  Stack, TextField, Typography, Autocomplete, Snackbar, Alert, Tooltip
+  Stack, TextField, Typography, Autocomplete, Snackbar, Alert, Tooltip,
+  TableContainer, Grid
 } from '@mui/material';
 
 import AudiotrackIcon from '@mui/icons-material/Audiotrack';
 import ImageIcon from '@mui/icons-material/Image';
 // import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import PollIcon from '@mui/icons-material/Poll';
+import DescriptionIcon from '@mui/icons-material/Description';
+import SendIcon from '@mui/icons-material/Send';
 
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { createPost, fetchLounges, updatePost } from '../services/loungeService';
@@ -245,38 +248,59 @@ const NewPostPage: React.FC = () => {
           helperText={errors.description}
         />
         {/* Horizontal Icon-only Attachments */}
-        <Box sx={{ display: 'flex', gap: 3, mb: 3, justifyContent: 'left' }}>
-          <Tooltip title="Audio" placement="top">
-            <IconButton size="small">
-              <AudiotrackIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Video / Image" placement="top">
-            <IconButton size="small">
-              <ImageIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Poll" placement="top">
-            <IconButton size="small"  onClick={() => navigate('/create/poll')}>
-              <PollIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-
-        {errors.submit && <Typography color="error" sx={{ mb: 1 }}>{errors.submit}</Typography>}
-        <Stack direction="row" justifyContent="space-between">
-          <Button
-            variant="outlined"
-            color="inherit"
-            onClick={handleSaveDraft}
-            sx={{ minWidth: 100 }}
-          >
-            Draft
-          </Button>
-          <Button type="submit" variant="contained" color="primary" sx={{ minWidth: 100 }}>
-            Post
-          </Button>
-        </Stack>
+        <Container maxWidth={false} disableGutters>
+          <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+            <Grid item>
+              <Tooltip title="Audio" placement="top">
+                <IconButton  type="submit" color="inherit" aria-label="Post" sx={{ minWidth: 45 }}>
+                  <AudiotrackIcon  />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Grid item>
+              <Tooltip title="Video / Image" placement="top">
+                <IconButton type="submit" color="inherit" aria-label="Post" sx={{ minWidth: 45 }}>
+                  <ImageIcon/>
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Grid item>
+              <Tooltip title="Poll" placement="top">
+                <IconButton
+                  type="button"
+                  color="inherit"
+                 sx={{ minWidth: 45 }}
+                  aria-label="Post"
+                  onClick={() => navigate('/create/poll')}
+                >
+                  <PollIcon/>
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Grid item>
+              <IconButton
+              sx={{ minWidth: 45 }}
+                color="inherit" 
+                aria-label="Save as draft"
+                onClick={handleSaveDraft}
+              >
+               <DescriptionIcon />
+              </IconButton>
+            </Grid>
+            <Grid item>
+              <IconButton type="submit" color="primary" aria-label="Post" sx={{ minWidth: 45 }}>
+                    <SendIcon />
+              </IconButton>
+            </Grid>
+            {errors.submit && (
+              <Grid item xs={12}>
+                <Typography color="error" sx={{ mb: 1 }}>
+                  {errors.submit}
+                </Typography>
+              </Grid>
+            )}
+          </Grid>
+        </Container>
       </form>
 
       {/* Draft Success Message */}
