@@ -188,6 +188,9 @@ const NewPostPage: React.FC = () => {
           onChange={e => setTitle(e.target.value)}
           inputProps={{ maxLength: 500 }}
           size="small"
+          autoCorrect="on"
+          autoCapitalize="sentences"
+          spellCheck={true}
           sx={{ mb: 2 }}
           error={!!errors.title}
           helperText={errors.title}
