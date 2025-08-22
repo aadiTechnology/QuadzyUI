@@ -26,6 +26,13 @@ const ProfileSettingsDialog: React.FC<ProfileSettingsDialogProps> = ({ open, onC
       return;
     }
     setError('');
+    // Update localStorage with new handle and profilePicture
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    localStorage.setItem('user', JSON.stringify({
+      ...user,
+      handle,
+      profilePicture,
+    }));
     onSave({ handle, profilePicture });
     onClose();
   };
