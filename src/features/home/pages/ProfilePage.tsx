@@ -298,35 +298,24 @@ const ProfilePage: React.FC = () => {
 
   return (
     <>
-      <Box sx={{ position: 'relative', minHeight: '100vh', pb: { xs: 10, md: 10 } }}>
+      <Box sx={{ position: 'relative', minHeight: '100vh', pb: { xs: 6, md: 8 } }}>
         <Card sx={{
-          maxWidth: 1000,
+          maxWidth: 900,
           mx: 'auto',
-          p: { xs: 1, md: 2 }, // smaller padding
+          p: { xs: 1, md: 2 },
           boxShadow: '0 4px 24px 0 rgba(60,72,120,0.10)',
           background: '#fff',
           position: 'sticky',
           top: 0,
-          height: '80vh',
+          minHeight: '80vh',
           overflowY: 'auto',
         }}>
-          <Button sx={{
-            position: 'absolute',
-            left: 15,
-            top: 15,
-            minWidth: 36,
-            borderRadius: 2,
-            bgcolor: '#f5f7fa',
-            color: '#000',
-            fontWeight: 700,
-            boxShadow: 0,
-            '&:hover': { bgcolor: '#f4f5f8ff' },
-          }}
-            onClick={() => navigate(-1)}
-          >
-            ←
-          </Button>
-          <Stack spacing={2} alignItems="center" sx={{ mt: 4, mb: 2 }}>
+           <Button sx={{ position: 'absolute', left: 15, top: 15, minWidth: 36, borderRadius: 2, bgcolor: '#f5f7fa', color: '#000', fontWeight: 700, boxShadow: 0, '&:hover': { bgcolor: '#f4f5f8ff' }, }}
+                                         onClick={() => navigate(-1)}
+                                       >
+                                         ←
+                           </Button>
+          <Stack spacing={1.5} alignItems="center" sx={{ mt: 3, mb: 1 }}>
             <ProfileHeader
               handle={profile.handle}
               collegeName={profile.collegeName}
@@ -335,7 +324,7 @@ const ProfilePage: React.FC = () => {
               onEditPhoto={() => setSettingsOpen(true)}
             />
             <Box width="100%">
-              <Typography fontWeight={700} fontSize="1rem" mb={1}>Activity</Typography>
+              <Typography fontWeight={700} fontSize="1rem" mb={0.5} sx={{ lineHeight: 1.1 }}>Activity</Typography>
               <ProfileActivity {...profile.activity} />
             </Box>
           </Stack>
@@ -345,7 +334,7 @@ const ProfilePage: React.FC = () => {
             variant="fullWidth"
             indicatorColor="primary"
             textColor="primary"
-            sx={{ mt: 2, mb: 2 }}
+            sx={{ mt: 1, mb: 1 }}
           >
             <Tab label="Your Posts" />
             <Tab label="Saved Posts" />

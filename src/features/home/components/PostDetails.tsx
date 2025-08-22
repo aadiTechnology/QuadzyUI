@@ -240,7 +240,7 @@ const PostDetails: React.FC = () => {
                   <SaveIcon fontSize="small" sx={{ mr: 1 }} />
                   {saved ? 'Unsave' : 'Save'}
                 </MenuItem>
-                <MenuItem onClick={() => { /* Flag logic here */ handlePostMenuClose(); }}>
+                <MenuItem onClick={() => {   navigate(`/post/${post.id}/report`); handlePostMenuClose(); }}>
                   <FlagIcon fontSize="small" sx={{ mr: 1 }} /> Flag
                 </MenuItem>
                 {currentUserHandle === post.userHandle && (

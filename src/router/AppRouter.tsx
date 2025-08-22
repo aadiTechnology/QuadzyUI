@@ -25,6 +25,7 @@ import ProfilePage from '../features/home/pages/ProfilePage';
 import SearchPage from '../features/home/components/SearchPage';
 import NotificationsPage from '../features/home/components/NotificationsPage';
 import CreatePollPage from '../features/poll/pages/CreatePollPage';
+import ReportPostPage from '../features/home/pages/ReportPostPage';
 
 const AppRouter: React.FC = () => {
   return (
@@ -54,6 +55,7 @@ const AppRouter: React.FC = () => {
             </AppLayout>
           }
         />
+        <Route path="/post/:postId/report" element={<AppLayout><ReportPostPage /></AppLayout>} />
         <Route path="/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
         <Route path="/search" element={<AppLayout><SearchPage /></AppLayout>} />
         <Route path="/notifications" element={<AppLayout><NotificationsPage /></AppLayout>} />

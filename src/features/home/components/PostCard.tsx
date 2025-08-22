@@ -159,6 +159,14 @@ const PostCard: React.FC<PostCardProps> = ({
               Edit
             </MenuItem>
           )}
+          <MenuItem
+            onClick={() => {
+              navigate(`/post/${post.id}/report`);
+              handleMenuClose();
+            }}
+          >
+           Flag
+          </MenuItem>
         </Menu>
       </Box>
       {/* Heading */}
